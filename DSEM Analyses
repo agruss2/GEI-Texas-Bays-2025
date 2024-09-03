@@ -139,13 +139,13 @@ p
 
 
 ###### trying to show only signficant relationships
-# Extract the summary of the fitted model
+# extract model summary 
 fit_summary <- summary(fit)
 
-# Extract the paths and p-values
+# extract paths and p-values
 path_pvalues <- fit_summary$coefficients
 
-# Filter paths with p-values < 0.05
+# filter paths with sig p-values
 significant_paths <- path_pvalues[path_pvalues[, "Pr(>|z|)"] < 0.05, ]
 
 
