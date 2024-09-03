@@ -32,7 +32,7 @@ p3 = plot( as_fitted_DAG(fit, lag=1))
 p3 
 
 
-### now try with GB drum (gill net) and blue crab data
+### now try with GB fish (gill net), blue crab and brown shrimp data
 
 #get mean gill net values  per year
 GalvestonBay_GN_cpue2<- na.omit(GalvestonBay_GN_cpue)
@@ -138,7 +138,7 @@ p = plot( as_fitted_DAG(fit, lag=1), text_size=4 ) +
 p
 
 
-######
+###### trying to show only signficant relationships
 # Extract the summary of the fitted model
 fit_summary <- summary(fit)
 
@@ -148,7 +148,4 @@ path_pvalues <- fit_summary$coefficients
 # Filter paths with p-values < 0.05
 significant_paths <- path_pvalues[path_pvalues[, "Pr(>|z|)"] < 0.05, ]
 
-# Reconstruct the SEM model string with only significant paths
-significant_sem <- paste0(apply(significant_paths, 1, function(row) {
-  paste0(row["lhs"], " -> ", row["rhs"], ", 1, ", row["label"])
-}), collapse = "\n")
+
