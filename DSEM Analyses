@@ -1,0 +1,154 @@
+
+library(dsem)
+library(ggplot2)
+library(ggpubr)
+library(ggraph)
+library(phylopath)
+library(dplyr)
+
+
+### testing with practice code/data
+setwd("~/Desktop")
+load("Biggs/DSEM/isle_royale.rda")
+data(isle_royale)
+data = ts( log(isle_royale[,2:3]), start=1959)
+
+sem = "
+  # Link, lag, param_name
+  wolves -> wolves, 1, arW
+  moose -> wolves, 1, MtoW
+  wolves -> moose, 1, WtoM
+  moose -> moose, 1, arM
+"
+fit = dsem( sem = sem,
+             tsdata = data,
+             estimate_delta0 = FALSE,
+             control = dsem_control(
+               quiet = TRUE,
+               getsd = TRUE) )
+summary(fit)
+
+p3 = plot( as_fitted_DAG(fit, lag=1)) 
+p3 
+
+
+### now try with GB drum (gill net) and blue crab data
+
+#get mean gill net values  per year
+GalvestonBay_GN_cpue2<- na.omit(GalvestonBay_GN_cpue)
+GalvestonBay_GN_cpue2$MONTH <- substr(GalvestonBay_GN_cpue2$DATE, 6, 7)
+GalvestonBay_GN_cpue2$YEAR <- substr(GalvestonBay_GN_cpue2$DATE, 1, 4)
+GalvestonBay_GN_YearMean <- GalvestonBay_GN_cpue2 %>%
+  group_by(YEAR) %>%
+  summarise(across(everything(), mean, na.rm = TRUE))
+
+GalvestonBay_GN_YearMean$YEAR <- as.numeric(GalvestonBay_GN_YearMean$YEAR)
+
+#get mean blue crab values  per year
+GalvestonBay_BS_bluecrabs2<- na.omit(GalvestonBay_BS_bluecrabs)
+GalvestonBay_BLUES_YearMean <- GalvestonBay_BS_bluecrabs2 %>%
+  group_by(YEAR) %>%
+  summarise(across(everything(), mean, na.rm = TRUE))
+
+GalvestonBay_BLUES_YearMean$YEAR <- as.numeric(GalvestonBay_BLUES_YearMean$YEAR)
+
+columns_to_merge <- GalvestonBay_BLUES_YearMean %>%
+  dplyr::select(YEAR, BlueCrabSmall, BlueCrabMedium, BlueCrabLarge)
+
+#get mean brown shrimp values  per year
+
+Galveston_BS_shrimps$YEAR <- substr(Galveston_BS_shrimps$DATE, 1, 4)
+GalvestonBay_BS_shrimps2<- na.omit(Galveston_BS_shrimps)
+GalvestonBay_shrimps_YearMean <- GalvestonBay_BS_shrimps2 %>%
+  group_by(YEAR) %>%
+  summarise(across(everything(), mean, na.rm = TRUE))
+
+GalvestonBay_shrimps_YearMean$YEAR <- as.numeric(GalvestonBay_shrimps_YearMean$YEAR)
+
+columns_to_merge_shrimp <- GalvestonBay_shrimps_YearMean %>%
+  dplyr::select(YEAR, BrownShrimp)
+
+# merge blue crabs based on YEAR 
+GalvestonBay_GN_YearMean <- GalvestonBay_GN_YearMean %>%
+  left_join(columns_to_merge, by = "YEAR")
+
+# merge brown shrimp based on YEAR 
+GalvestonBay_GN_YearMean <- GalvestonBay_GN_YearMean %>%
+  left_join(columns_to_merge_shrimp, by = "YEAR")
+
+# remove 1983 bc no shrimp data for that year
+GalvestonBay_GN_YearMean <- GalvestonBay_GN_YearMean %>%
+  filter(YEAR != 1983)
+
+GalvestonBay_GN_YearMean_log <- GalvestonBay_GN_YearMean %>%
+  mutate(across(c(BlueCrabSmall, Salinity, Temp, BlackDrum, RedDrum, SpottedSeatrout, HardheadCatfish, GafftopsailCatfish, BrownShrimp), log)) %>%  # Log transformation
+  mutate(across(c(BlueCrabSmall, Salinity, Temp, BlackDrum, RedDrum, SpottedSeatrout, HardheadCatfish, GafftopsailCatfish, BrownShrimp), ~ (. - mean(.)) / sd(.)))  # Normalize to mean zero and standard deviation of one
+
+# set up sem structures
+sem= "
+    BlueCrabSmall ->  RedDrum, 1, a
+   Temp ->  RedDrum, 1, b
+   Temp ->  BlueCrabSmall, 1, c
+   BlueCrabSmall -> BlueCrabSmall, 1, d
+   RedDrum -> RedDrum, 1, e
+  BlueCrabSmall ->  BlackDrum, 1, f
+   Temp ->  BlackDrum, 1, g
+   BlackDrum -> BlackDrum, 1, h
+    BlueCrabSmall -> SpottedSeatrout, 1, i
+   Temp ->  SpottedSeatrout, 1, j
+   SpottedSeatrout -> SpottedSeatrout, 1, k
+    BlueCrabSmall -> HardheadCatfish, 1, l
+   Temp ->  HardheadCatfish, 1, m
+  HardheadCatfish -> HardheadCatfish, 1, n
+      BlueCrabSmall -> GafftopsailCatfish, 1, o
+   Temp ->  GafftopsailCatfish, 1, p
+ GafftopsailCatfish-> GafftopsailCatfish, 1, q
+  BrownShrimp ->  RedDrum, 1, r
+   Temp ->  BrownShrimp, 1, s
+   BrownShrimp -> BrownShrimp, 1, t
+  BrownShrimp ->  BlackDrum, 1, u
+  BrownShrimp -> SpottedSeatrout, 1, v
+  BrownShrimp -> HardheadCatfish, 1, w
+  BrownShrimp -> GafftopsailCatfish, 1, x
+   Salinity ->  RedDrum, 1, bb
+    Salinity ->  BlueCrabSmall, 1, cc
+    Salinity ->  BlackDrum, 1, gg
+    Salinity ->  SpottedSeatrout, 1, jj
+    Salinity ->  HardheadCatfish, 1, mm
+    Salinity ->  GafftopsailCatfish, 1, pp
+    Salinity ->  BrownShrimp, 1, ss
+"
+
+# get variables of interest in a time series 
+data2 <- ts(GalvestonBay_GN_YearMean_log[,(c("BlueCrabSmall","Temp", "Salinity", "RedDrum", "SpottedSeatrout", "BlackDrum", "HardheadCatfish", "GafftopsailCatfish", "BrownShrimp"))], 
+           start = c(min(GalvestonBay_GN_YearMean_log$YEAR))) 
+data2
+
+# fit the dsem
+fit = dsem( sem = sem,
+            tsdata = data2,
+            estimate_delta0 = TRUE,
+            control = dsem_control(
+              quiet = TRUE,
+              getsd = TRUE,newton_loops = 0) ) 
+summary(fit)
+
+p = plot( as_fitted_DAG(fit, lag=1), text_size=4 ) +
+  expand_limits(x = c(-0.2,2), y = c(-0.2,0) )
+p
+
+
+######
+# Extract the summary of the fitted model
+fit_summary <- summary(fit)
+
+# Extract the paths and p-values
+path_pvalues <- fit_summary$coefficients
+
+# Filter paths with p-values < 0.05
+significant_paths <- path_pvalues[path_pvalues[, "Pr(>|z|)"] < 0.05, ]
+
+# Reconstruct the SEM model string with only significant paths
+significant_sem <- paste0(apply(significant_paths, 1, function(row) {
+  paste0(row["lhs"], " -> ", row["rhs"], ", 1, ", row["label"])
+}), collapse = "\n")
