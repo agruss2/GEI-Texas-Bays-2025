@@ -133,19 +133,60 @@ fit = dsem( sem = sem,
               getsd = TRUE,newton_loops = 0) ) 
 summary(fit)
 
+# make plot using dsem package
 p = plot( as_fitted_DAG(fit, lag=1), text_size=4 ) +
   expand_limits(x = c(-0.2,2), y = c(-0.2,0) )
 p
 
+# make plot using ggnetwork
+library(network)
+library(ggnetwork)
+library(sna)
+library(igraph)
+library(ggnetwork)
+library(ggrepel)
 
-###### trying to show only signficant relationships
-# extract model summary 
 fit_summary <- summary(fit)
 
-# extract paths and p-values
-path_pvalues <- fit_summary$coefficients
+# remove not needed columns and looped relationships
+fit_summary_filtered <- fit_summary %>%
+  select(first, second, Estimate) %>%  
+  filter(first != second)  
 
-# filter paths with sig p-values
-significant_paths <- path_pvalues[path_pvalues[, "Pr(>|z|)"] < 0.05, ]
+# get data in appropriate format
+g <- graph_from_data_frame(d = fit_summary_filtered, directed = TRUE)
+
+net <- ggnetwork(g)
+
+net <- net %>%
+  mutate(
+    edge_color = case_when(
+      Estimate < -0.2 ~ "lightcoral",
+      Estimate > 0.2 ~ "steelblue3",
+      TRUE ~ "grey88"
+    ),
+    xend = x + (xend - x) * 0.95,
+    yend = y + (yend - y) * 0.95
+  )
+
+# define cushion space
+cushion <- 0.1  #
+
+# make plot 
+ggplot(net, aes(x = x, y = y, xend = xend, yend = yend)) +
+  geom_edges(aes(size = abs(Estimate), color = edge_color), 
+             arrow = arrow(length = unit(9, "pt"), type = "open"), curvature = 0.1) +
+  geom_nodelabel(aes(label = name), fill = "seashell2") +
+  scale_size_continuous(range = c(0.5, 2)) +  
+  scale_color_identity() +  
+  theme_void() + 
+  theme(legend.position = "none",
+        plot.margin = margin(10, 10, 10, 10, "pt")) +  # Add space around the plot
+  expand_limits(x = c(min(net$x) - cushion, max(net$x) + cushion), 
+                y = c(min(net$y) - cushion, max(net$y) + cushion))  # Expand limits to add cushion
+
+
+
+
 
 
