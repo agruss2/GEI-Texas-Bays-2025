@@ -5,7 +5,7 @@ library(ggpubr)
 library(ggraph)
 library(phylopath)
 library(dplyr)
-
+library(ggdag)
 
 ### testing with practice code/data
 setwd("~/Desktop")
@@ -32,7 +32,7 @@ p3 = plot( as_fitted_DAG(fit, lag=1))
 p3 
 
 
-### now try with GB fish (gill net), blue crab and brown shrimp data
+### now try with Galveston bay drum (gill net), blue crab and brown shrimp data
 
 #get mean gill net values  per year
 GalvestonBay_GN_cpue2<- na.omit(GalvestonBay_GN_cpue)
@@ -56,7 +56,6 @@ columns_to_merge <- GalvestonBay_BLUES_YearMean %>%
   dplyr::select(YEAR, BlueCrabSmall, BlueCrabMedium, BlueCrabLarge)
 
 #get mean brown shrimp values  per year
-
 Galveston_BS_shrimps$YEAR <- substr(Galveston_BS_shrimps$DATE, 1, 4)
 GalvestonBay_BS_shrimps2<- na.omit(Galveston_BS_shrimps)
 GalvestonBay_shrimps_YearMean <- GalvestonBay_BS_shrimps2 %>%
@@ -84,8 +83,8 @@ GalvestonBay_GN_YearMean_log <- GalvestonBay_GN_YearMean %>%
   mutate(across(c(BlueCrabSmall, Salinity, Temp, BlackDrum, RedDrum, SpottedSeatrout, HardheadCatfish, GafftopsailCatfish, BrownShrimp), log)) %>%  # Log transformation
   mutate(across(c(BlueCrabSmall, Salinity, Temp, BlackDrum, RedDrum, SpottedSeatrout, HardheadCatfish, GafftopsailCatfish, BrownShrimp), ~ (. - mean(.)) / sd(.)))  # Normalize to mean zero and standard deviation of one
 
-# set up sem structures
-sem= "
+# set up sem structure for a time lag of one year
+sem1= "
     BlueCrabSmall ->  RedDrum, 1, a
    Temp ->  RedDrum, 1, b
    Temp ->  BlueCrabSmall, 1, c
@@ -118,20 +117,45 @@ sem= "
     Salinity ->  GafftopsailCatfish, 1, pp
     Salinity ->  BrownShrimp, 1, ss
 "
+sem0= "
+    BlueCrabSmall ->  RedDrum, 0, a
+   Temp ->  RedDrum, 0, b
+   Temp ->  BlueCrabSmall, 0, c
+  BlueCrabSmall ->  BlackDrum, 0, f
+   Temp ->  BlackDrum, 0, g
+    BlueCrabSmall -> SpottedSeatrout, 0, i
+   Temp ->  SpottedSeatrout, 0, j
+    BlueCrabSmall -> HardheadCatfish, 0, l
+   Temp ->  HardheadCatfish, 0, m
+      BlueCrabSmall -> GafftopsailCatfish, 0, o
+   Temp ->  GafftopsailCatfish, 0, p
+  BrownShrimp ->  RedDrum, 0, r
+   Temp ->  BrownShrimp, 0, s
+  BrownShrimp ->  BlackDrum, 0, u
+  BrownShrimp -> SpottedSeatrout, 0, v
+  BrownShrimp -> HardheadCatfish, 0, w
+  BrownShrimp -> GafftopsailCatfish, 0, x
+   Salinity ->  RedDrum, 0, bb
+    Salinity ->  BlueCrabSmall, 0, cc
+    Salinity ->  BlackDrum, 0, gg
+    Salinity ->  SpottedSeatrout, 0, jj
+    Salinity ->  HardheadCatfish, 0, mm
+    Salinity ->  GafftopsailCatfish, 0, pp
+    Salinity ->  BrownShrimp, 0, ss
+"
 
 # get variables of interest in a time series 
-data2 <- ts(GalvestonBay_GN_YearMean_log[,(c("BlueCrabSmall","Temp", "Salinity", "RedDrum", "SpottedSeatrout", "BlackDrum", "HardheadCatfish", "GafftopsailCatfish", "BrownShrimp"))], 
+data_GB <- ts(GalvestonBay_GN_YearMean_log[,(c("BlueCrabSmall","Temp", "Salinity", "RedDrum", "SpottedSeatrout", "BlackDrum", "HardheadCatfish", "GafftopsailCatfish", "BrownShrimp"))], 
            start = c(min(GalvestonBay_GN_YearMean_log$YEAR))) 
-data2
 
-# fit the dsem
-fit = dsem( sem = sem,
-            tsdata = data2,
+# fit the dsem (model)
+fit2 = dsem( sem = sem0,
+            tsdata = data_GB,
             estimate_delta0 = TRUE,
             control = dsem_control(
               quiet = TRUE,
               getsd = TRUE,newton_loops = 0) ) 
-summary(fit)
+summary(fit2)
 
 # make plot using dsem package
 p = plot( as_fitted_DAG(fit, lag=1), text_size=4 ) +
@@ -146,6 +170,7 @@ library(igraph)
 library(ggnetwork)
 library(ggrepel)
 
+# get model fit summary
 fit_summary <- summary(fit)
 
 # remove not needed columns and looped relationships
@@ -153,11 +178,14 @@ fit_summary_filtered <- fit_summary %>%
   select(first, second, Estimate) %>%  
   filter(first != second)  
 
-# get data in appropriate format
+# get data in appropriate format for ggnetwork
 g <- graph_from_data_frame(d = fit_summary_filtered, directed = TRUE)
 
 net <- ggnetwork(g)
 
+# show significant negative relationships as red (ish), significant positive relationships as blue (ish)
+# and show non significant relationships with grey arrows
+# not that significance is estimated from parameter estimates... will need to adjust based on p-values
 net <- net %>%
   mutate(
     edge_color = case_when(
@@ -169,7 +197,7 @@ net <- net %>%
     yend = y + (yend - y) * 0.95
   )
 
-# define cushion space
+# define cushion space so labels dont extend past plot bounds
 cushion <- 0.1  #
 
 # make plot 
@@ -184,6 +212,50 @@ ggplot(net, aes(x = x, y = y, xend = xend, yend = yend)) +
         plot.margin = margin(10, 10, 10, 10, "pt")) +  # Add space around the plot
   expand_limits(x = c(min(net$x) - cushion, max(net$x) + cushion), 
                 y = c(min(net$y) - cushion, max(net$y) + cushion))  # Expand limits to add cushion
+
+
+########
+# turn the above plot making code into a function
+plot_dsem_network <- function(fit, cushion = 0.1) {
+  
+  fit_summary <- summary(fit)
+  
+  fit_summary_filtered <- fit_summary %>%
+    select(first, second, Estimate) %>%  
+    filter(first != second)
+  
+  g <- graph_from_data_frame(d = fit_summary_filtered, directed = TRUE)
+  
+  net <- ggnetwork(g)
+  
+  net <- net %>%
+    mutate(
+      edge_color = case_when(
+        Estimate < -0.2 ~ "lightcoral",
+        Estimate > 0.2 ~ "steelblue3",
+        TRUE ~ "grey93"
+      ),
+      xend = x + (xend - x) * 0.95,
+      yend = y + (yend - y) * 0.95
+    )
+  
+  ggplot(net, aes(x = x, y = y, xend = xend, yend = yend, layout = "kk")) +
+    geom_nodelabel(aes(label = name), fill = "seashell2", size=4) +
+    geom_edges(aes(size = abs(Estimate), color = edge_color, alpha=0.9), 
+               arrow = arrow(length = unit(9, "pt"), type = "open"), curvature = 0.05) +
+    scale_size_continuous(range = c(.0001, 2)) + 
+    scale_color_identity() +  
+    theme_void() + 
+    theme(legend.position = "none",
+          plot.margin = margin(10, 10, 10, 10, "pt")) +  
+    expand_limits(x = c(min(net$x) - cushion, max(net$x) + cushion), 
+                  y = c(min(net$y) - cushion, max(net$y) + cushion))
+}
+
+# example usage of the function with a fitted dsem
+plot_dsem_network(fit2)
+
+
 
 
 
