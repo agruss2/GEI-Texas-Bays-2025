@@ -10,7 +10,7 @@ library(ggpubr)
 NERR_WQ_AB <- MANERR_WQ_AransasBay_AB %>%
   mutate(Year = as.numeric(format(as.Date(Date), "%Y")))
 
-TPWD_Abiotics_AB  <- AransasBay_Abiotics %>%
+AransasBay_Abiotics  <- AransasBay_Abiotics %>%
   mutate(Year = as.numeric(format(as.Date(Date), "%Y")))
 
 # Step 2: Calculate the mean Temp and Salinity per Year for each dataframe
@@ -60,22 +60,16 @@ ann_salinity_plot <- ggplot(AnnualTemps, aes(x = mean_salinity_AB, y = mean_sali
   ylab("Bag Seine Salinity") +
   theme_bw()
 
-# Display the plots
-print(temp_plot)
-print(salinity_plot)
+
 
 ### MONTHLY MEANS
-
-# Load necessary libraries
-library(dplyr)
-library(ggplot2)
 
 # Step 1: Create a "Month.Year" column in both dataframes by extracting month and year from the "Date" column
 NERR_WQ_AB <- MANERR_WQ_AransasBay_AB %>%
   mutate(Month.Year = format(as.Date(Date), "%m.%y"))
 
-TPWD_Abiotics_AB  <- AransasBay_Abiotics %>%
-  mutate(Month.Year = format(as.Date(Date), "%m.%y"))
+AransasBay_Abiotics <- AransasBay_Abiotics %>%
+  mutate(Month = format(as.Date(Date), "%m"))
 
 
 # Step 2: Calculate the mean Temp and Salinity per Year for each dataframe
