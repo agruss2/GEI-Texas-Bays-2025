@@ -57,7 +57,7 @@ AransasBay_Sciaenid_Wide <- data.frame(YEAR = character())
 # use function to get values for 5 fish species from gill net surveys
 AransasBay_Sciaenid_Wide <- processforDSEM(
   data = AransasBay_GN_cpue,
-  species = c("HardheadCatfish", "GafftopsailCatfish", "RedDrum", "BlackDrum", "SpottedSeatrout"),
+  species = c("RedDrum", "SouthernFlounder", "SpottedSeatrout"),
   minor_area_mapping = minor_area_mapping,
   date_column = "DATE",
   result_df = AransasBay_Sciaenid_Wide
@@ -105,33 +105,6 @@ AransasBay_Sciaenid_Wide <- AransasBay_Sciaenid_Wide %>%
   )
 
 # quick inspection of some temporal trends, using catfish because I have an idea of what these trends should look like based on zach's recent work 
-library(ggplot2)
-
-time_series_data <- AransasBay_Sciaenid_Wide %>%
-  select(YEAR, starts_with("GafftopsailCatfish"), starts_with("HardheadCatfish")) %>%
-  pivot_longer(
-    cols = -YEAR,
-    names_to = c("Species", "Bay"),
-    names_sep = "_",  # Assumes the column names are in "Species_Bay" format
-    values_to = "Mean_CPUE"
-  )
-
-ggplot(time_series_data, aes(x = YEAR, y = Mean_CPUE, color = Bay, group = interaction(Species, Bay))) +
-  geom_line(size = 1) +
-  geom_point(size = 2) +
-  facet_wrap(~ Species, scales = "free_y") +
-  labs(
-    title = "Time Series of Gafftopsail Catfish and Hardhead Catfish CPUE",
-    x = "Year",
-    y = "Mean CPUE",
-    color = "Bay"
-  ) +
-  theme_bw() +
-  theme(
-    legend.position = "bottom",
-    plot.title = element_text(hjust = 0.5, size = 14),
-    axis.text.x = element_text(angle = 45, hjust = 1)
-  )
 
 # remove spaces from column names
 colnames(AransasBay_Sciaenid_Wide) <- gsub(" ", "", colnames(AransasBay_Sciaenid_Wide))
@@ -150,4 +123,114 @@ AransasBay_Sciaenid_Wide_Trans <- AransasBay_Sciaenid_Wide %>%
     .fns = ~ (. - mean(.)) / sd(.)
   ))
 
-#now data is ready for dsem. lets export into an excel file 
+# this data (sciaenid system - aransas bay) is now ready for dsem
+
+# now lets process more data (keystone predator system - aransas bay)
+
+# make initial df
+AransasBay_Pred_Wide <- data.frame(YEAR = character())
+
+# use function to get values for bullshark from gill net surveys
+AransasBay_Pred_Wide <- processforDSEM(
+  data = AransasBay_GN_BullShark,
+  species = c("BullShark"),
+  minor_area_mapping = minor_area_mapping,
+  date_column = "DATE",
+  result_df = AransasBay_Pred_Wide
+)
+
+# use function to get values for gar from gill net surveys
+AransasBay_Pred_Wide <- processforDSEM(
+  data = AransasBay_GN_Gar,
+  species = c("AlligatorGar"),
+  minor_area_mapping = minor_area_mapping,
+  date_column = "DATE",
+  result_df = AransasBay_Pred_Wide
+)
+
+# use function to get values for mullet from gill net surveys
+AransasBay_Pred_Wide <- processforDSEM(
+  data = AransasBay_GN_Mullet,
+  species = c("StripedMullet"),
+  minor_area_mapping = minor_area_mapping,
+  date_column = "DATE",
+  result_df = AransasBay_Pred_Wide
+)
+
+AransasBay_Pred_Wide <- processforDSEM(
+  data = AransasBay_GN_cpue,
+  species = c("GulfMenhaden"),
+  minor_area_mapping = minor_area_mapping,
+  date_column = "DATE",
+  result_df = AransasBay_Pred_Wide
+)
+
+# use function to get values for temp and salinity from all gill net, bag seine and bottom trawl surveys
+AransasBay_Pred_Wide <- processforDSEM(
+  data = AransasBay_Abiotics,
+  species = c("START_TEMPERATURE_NUM", "START_SALINITY_NUM"),
+  minor_area_mapping = minor_area_mapping,
+  date_column = "DATE",
+  result_df = AransasBay_Pred_Wide
+)
+
+# the df now has all the needed data (I think?). we still need to transform/standardize the values, but first lets clean up the df (remove and rename some columns)
+AransasBay_Pred_Wide <- AransasBay_Pred_Wide %>%
+  select(-START_TEMPERATURE_NUM_NA, -START_SALINITY_NUM_NA)
+
+AransasBay_Pred_Wide <- AransasBay_Pred_Wide %>%
+  rename_with(
+    .fn = ~ gsub("^START_TEMPERATURE_NUM_", "Temperature_", .),
+    .cols = starts_with("START_TEMPERATURE_NUM_")
+  ) %>%
+  rename_with(
+    .fn = ~ gsub("^START_SALINITY_NUM_", "Salinity_", .),
+    .cols = starts_with("START_SALINITY_NUM_")
+  )
+
+# quick inspection of some temporal trends
+time_series_data <- AransasBay_Pred_Wide %>%
+  select(YEAR, starts_with("BullShark"), starts_with("StripedMullet")) %>%
+  pivot_longer(
+    cols = -YEAR,
+    names_to = c("Species", "Bay"),
+    names_sep = "_",  # Assumes the column names are in "Species_Bay" format
+    values_to = "Mean_CPUE"
+  )
+
+ggplot(time_series_data, aes(x = YEAR, y = Mean_CPUE, color = Bay, group = interaction(Species, Bay))) +
+  geom_line(size = 1) +
+  geom_point(size = 2) +
+  facet_wrap(~ Species, scales = "free_y") +
+  labs(
+    title = "Time Series of BullSharl and Striped Mullet CPUE",
+    x = "Year",
+    y = "Mean CPUE",
+    color = "Bay"
+  ) +
+  theme_bw() +
+  theme(
+    legend.position = "bottom",
+    plot.title = element_text(hjust = 0.5, size = 14),
+    axis.text.x = element_text(angle = 45, hjust = 1)
+  )
+
+# remove spaces from column names
+colnames(AransasBay_Pred_Wide) <- gsub(" ", "", colnames(AransasBay_Pred_Wide))
+
+
+# okay now lets transform the values and create a new df
+AransasBay_Pred_Wide_Trans <- AransasBay_Pred_Wide %>%
+  # Step 1: Apply log transformation
+  mutate(across(
+    .cols = where(is.numeric) & !contains("YEAR"),
+    .fns = ~ log(. + 1)  # Log transformation with a small shift to avoid log(0)
+  )) %>%
+  # Step 2: Apply standardization (mean = 0, SD = 1)
+  mutate(across(
+    .cols = where(is.numeric) & !contains("YEAR"),
+    .fns = ~ (. - mean(.)) / sd(.)
+  ))
+
+
+
