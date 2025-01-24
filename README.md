@@ -1,4 +1,7 @@
-This work/code is still in development. It is using dynamic structural equation modeling to look at lagged relationships within a Texas estuarine food web.
-This work is expected to expand to look at multiple bays, multiple lags and multiple food webs (i.e., trophic models).
-This current trophic model includes crustaceans (blue crabs and brown shrimp) serving as food sources for 5 predators: red drum, black drum, spotted seatrout
-and two catfish species. Two abiotic factors of salinity and temperature are also included.
+This work/code is still in development. 
+
+It is using dynamic structural equation modeling to look at lagged and nonlagged relationships within Texas estuarine food webs. Two major bays are considered: Aransas Bay and Galveston Bay. Within each bay, two trophic systems are considered: a trophic system with keystone predators (bull shark and alligator gar) and one with sciaenid (among other) predators (red drum, spotted seatrout and southern flounder). The keystone predator system includes two fish prey species (gulf menhaden and striped mullet). The sciaenid system includes two shellfish prey species (blue crabs and brown shrimp). Both systems include two abiotic variables of temperature and salinity.  This produced four models: two bays with two trophic systems. Each major bay is broken into three minor bays for spatial replicates.
+
+Annual and seasonal time steps are analyzed separately to investigate the hypothesis that annual time steps produce similar relationships (magnitude and direction) to seasonal time steps. Therefore, four annual sems are produced and four seasonal sems are produced. Each of these four sems considers nonlagged and lagged (one time step) relationships. To compare annual time step and seasonal time step relationships, bar plots of mean sem coefficient values (for each unique predictor-response combo) are produced. 
+
+Future work will refine the species, time steps and lags included.
