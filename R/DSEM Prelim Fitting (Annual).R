@@ -11,6 +11,8 @@ library(ggraph)
 library(qgraph)
 library(DHARMa)
 
+devtools::install_github("James-Thorson-NOAA/dsem", ref="main")
+
 
 ###################################################################
 

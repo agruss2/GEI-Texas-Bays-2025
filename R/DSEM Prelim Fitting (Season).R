@@ -10,7 +10,8 @@ library(ggraph)
 library(qgraph)
 library(DHARMa)
 
-
+devtools::install_github("James-Thorson-NOAA/dsem", ref="main")
+                         
 ###################################################################
 
 # fitting 4 DSEMs (two trophic systems and two major bays) at seasonal time steps 
