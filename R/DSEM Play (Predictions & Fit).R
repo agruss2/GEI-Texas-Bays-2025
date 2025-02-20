@@ -8,12 +8,8 @@ library(phylopath)
 library(dplyr)
 library(ggdag)
 library(dynlm)
-library(ggplot2)
 library(reshape)
-library(ggplot2)
-library(dplyr)
-library(brms)
-library(LaplacesDemon)
+
 
 
 ### testing with practice code/data
