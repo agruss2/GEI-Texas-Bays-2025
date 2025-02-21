@@ -94,7 +94,9 @@ loodf<-loo_residuals(fit, what="loo", track_progress=FALSE)
 loodf2<-loo_residuals(fit2, what="loo", track_progress=FALSE)
 
 # i am not too familiar with WAIC values, but they may be appropriate in this (Bayesian?) context?.. although idk if they make sense for SEMs...
+# although dsem has cAIC and TMBAIC abilities, so my WAIC values are likely uselesss
 # here is my attempt, along with the help of chatgpt, to calculate and compare WAIC values between the two models
+
 log_lik_approx <- dnorm(loodf$obs, mean = loodf$est, sd = loodf$se, log = TRUE)
 lppd <- sum(log_lik_approx)
 pWAIC <- var(log_lik_approx)
