@@ -1,0 +1,88 @@
+
+library(dsem)
+library(ggpubr)
+library(ggraph)
+library(phylopath)
+library(dplyr)
+library(ggdag)
+library(dynlm)
+library(ggplot2)
+library(reshape)
+
+
+setwd("~/Desktop")
+load("Biggs/DSEM/bering_sea.rda")
+data(bering_sea)
+Z = ts( bering_sea )
+family = rep('fixed', ncol(bering_sea))
+
+# Specify model
+sem = "
+  # Link, lag, param_name
+  log_seaice -> log_CP, 0, seaice_to_CP
+  log_CP -> log_Cfall, 0, CP_to_Cfall
+  log_CP -> log_Esummer, 0, CP_to_E
+  log_PercentEuph -> log_RperS, 0, Seuph_to_RperS
+  log_PercentCop -> log_RperS, 0, Scop_to_RperS
+  log_Esummer -> log_PercentEuph, 0, Esummer_to_Suph
+  log_Cfall -> log_PercentCop, 0, Cfall_to_Scop
+  SSB -> log_RperS, 0, SSB_to_RperS
+
+  log_seaice -> log_seaice, 1, AR1, 0.001
+  log_CP -> log_CP, 1,  AR2, 0.001
+  log_Cfall -> log_Cfall, 1, AR4, 0.001
+  log_Esummer -> log_Esummer, 1, AR5, 0.001
+  SSB -> SSB, 1, AR6, 0.001
+  log_RperS ->  log_RperS, 1, AR7, 0.001
+  log_PercentEuph -> log_PercentEuph, 1, AR8, 0.001
+  log_PercentCop -> log_PercentCop, 1, AR9, 0.001
+"
+
+# Fit
+fit = dsem( sem = sem,
+            tsdata = Z,
+            family = family,
+            control = dsem_control(use_REML=FALSE, quiet=TRUE) )
+
+# Get predictions
+loodf <- loo_residuals(fit, what = "loo", track_progress = FALSE)
+
+
+# Get max and min observed sea ice values
+max_seaice <- max(Z[, "log_seaice"], na.rm = TRUE)
+min_seaice <- min(Z[, "log_seaice"], na.rm = TRUE)
+
+# Create modified loodf for high and low sea ice scenarios
+high_loodf <- loodf
+low_loodf <- loodf
+
+
+# Set log_seaice predictions to max and min observed values
+high_loodf$est[high_loodf$Var2 == "log_seaice"] <- max_seaice
+low_loodf$est[low_loodf$Var2 == "log_seaice"] <- min_seaice
+
+
+# Extract model coefficients and make function to propagate sea ice changes to dependent variables
+
+#### THIS IS CRAP!!!!!!!, but hopefully it is crap that can turn into something
+propagate_effects <- function(loodf, seaice_value, coefs) {
+  loodf$est[loodf$Var2 == "log_seaice"] <- seaice_value
+  
+  for (coef in coefs$Path) {
+    parts <- unlist(strsplit(coef, " -> "))
+    if (length(parts) == 2) {
+      predictor <- parts[1]
+      response <- parts[2]
+      
+      if (predictor == "log_seaice") {
+        impact <- coefs$Estimate[coefs$Path == coef] * (seaice_value - mean(Z[, "log_seaice"], na.rm = TRUE))
+        loodf$est[loodf$Var2 == response] <- loodf$est[loodf$Var2 == response] + impact
+      }
+    }
+  }
+  return(loodf)
+}
+
+# Apply the function to get predictions under high and low sea ice scenarios
+high_loodf <- propagate_effects(high_loodf, max_seaice, coefs)
+low_loodf <- propagate_effects(low_loodf, min_seaice, coefs)
