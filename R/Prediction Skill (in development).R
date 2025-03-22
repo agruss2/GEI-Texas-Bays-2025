@@ -154,7 +154,7 @@ plot_observed_vs_predicted_no_xtext <- function(df, response_var, yaxis_title, p
 ###################
 
 
-#### Now keystones for aransas bay 
+#### Testing the prediction skill function on the full bottom-up model for Aransas Bay for the Keystone Predator system. 
 
 #AB-keystone-full bottom up
 results_semAB_Pred <- cross_validation_ts(
