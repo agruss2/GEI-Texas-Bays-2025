@@ -5,9 +5,41 @@ library(tidyr)
 library(readxl)  
 library(gridExtra)
 library(ggplot2)
+library(readxl)
+library(httr)
+library(jsonlite)
+library(readxl)
+library(httr)
+library(jsonlite)
+library(git2r)
 
 
-# uplaod all data from desktop
+# Get all files from github
+repo_api_url <- "https://api.github.com/repos/RayCzajaJr/GEI-Texas-Bays/contents/Input"
+
+response <- GET(repo_api_url)
+file_data <- content(response, "text", encoding = "UTF-8")
+file_list <- fromJSON(file_data)
+
+excel_files <- file_list$name[grep("\\.xlsx$", file_list$name)]
+
+github_base <- "https://raw.githubusercontent.com/RayCzajaJr/GEI-Texas-Bays/main/Input/"
+
+for (file in excel_files) {
+  file_url <- paste0(github_base, file)  
+  
+  temp_file <- tempfile(fileext = ".xlsx")  
+  GET(file_url, write_disk(temp_file, overwrite = TRUE))  
+  
+  df_name <- gsub("\\.xlsx$", "", file)  
+  assign(df_name, read_excel(temp_file), envir = .GlobalEnv)  
+}
+
+print("All Excel files have been downloaded and loaded into R.")
+
+
+
+# Or get all files locally
 setwd("~/Desktop/Winter 2025 DSEM")  
 file_list <- list.files("Data", pattern = "\\.xlsx$", full.names = TRUE)
 for (file in file_list) {
@@ -16,7 +48,8 @@ for (file in file_list) {
 }
 
 
-# aransas bay (sciaenid trophic system) first
+
+# process data for aransas bay sciaenid trophic system first
 
 # merging temp and salinity data from three surveys (Probaly dont need temp data but lets keep it here just in case)
 AransasBay_Abiotics <- bind_rows(
@@ -610,8 +643,6 @@ ABMAP <- ABMAP +
 
 # combine the three maps into one layout
 combined_map <- grid.arrange(ABMAP, GBMAP, ncol = 1, nrow = 2)
-
-# Save the map(s)
 ggsave("combined_map.png", combined_map, width = 6, height = 9, dpi = 200)
 
 
