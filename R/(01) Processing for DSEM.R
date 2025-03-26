@@ -7,7 +7,7 @@ library(gridExtra)
 library(ggplot2)
 
 
-#uplaod all data from desktop
+# uplaod all data from desktop
 setwd("~/Desktop/Winter 2025 DSEM")  
 file_list <- list.files("Data", pattern = "\\.xlsx$", full.names = TRUE)
 for (file in file_list) {
