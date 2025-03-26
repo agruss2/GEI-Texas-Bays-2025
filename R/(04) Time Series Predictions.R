@@ -100,18 +100,6 @@ cross_validation_ts <- function(tsdata, sem, fit_function, loo_function, chunk_s
   return(final_metrics)
 }
 
-# Get predictions for each trophic system and major bay
-results_semAB_Pred <- cross_validation_ts(
-  tsdata = AB_Pred_TS,
-  sem = semAB_Pred_fulltopdown,
-  fit_function = dsem,
-  loo_function = loo_residuals,
-  chunk_size = 4, 
-  seed = 42,
-  output_df_name = "loodf_AB_Pred" 
-)
-print(results_semAB_Pred)
-
 results_semGB_Pred <- cross_validation_ts(
   tsdata = GB_Pred_TS,
   sem = semGB_Pred_fulltopdown,

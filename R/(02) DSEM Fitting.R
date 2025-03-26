@@ -116,6 +116,9 @@ fit_semAB_Sciaenid_fullbottomup = dsem(sem = semAB_Sciaenid_fullbottomup,
                             quiet = TRUE))
 summary(fit_semAB_Sciaenid_fullbottomup)
 
+
+#### Preliminary inspection of some path diagrams.... the next script will more fully develop diagrams for all trophic models and bays 
+
 # extract the coefficients
 get_part_Sciaenid = function(x){
   vars = c("Salinity","SpottedSeatrout","PDSI","Atlanticcroaker","RedDrum", "BlueCrabSmall")
@@ -577,65 +580,6 @@ AIC(fit_semAB_Sciaenid_topdown_noDD)
 AIC(fit_semAB_Sciaenid_fullbottomup)
 AIC(fit_semAB_Sciaenid_fulltopdown)
 
-
-# function extract the coefficients
-get_part_Sciaenid = function(x){
-  vars = c("Salinity","SpottedSeatrout","PDSI","Atlanticcroaker","RedDrum", "BlueCrabSmall")
-  index = sapply( vars, FUN=\(y) grep(y,rownames(x$coef))[1] )
-  x$coef = x$coef[index,index]
-  dimnames(x$coef) = list( vars, vars )
-  return(x)
-}
-
-# function to make path diagram
-plot_qgraph_panel <- function(data_ts, coef_matrix, plot_title = "Fitted DSEM Path Diagram") {
-  
-  # Extract the column names (variable names) from the time series object
-  abbrev_names <- colnames(data_ts)
-  
-  # Check if the time series object has column names
-  if (is.null(abbrev_names)) {
-    stop("The time series object does not have column names.")
-  }
-  
-  # Set plot margins (bottom, left, top, right) to add cushion space
-  par(mar = c(25, 25, 25, 25))  
-  
-  # Plot the graph
-  qgraph(coef_matrix,         
-         layout = "groups",              # Layout style
-         edge.labels = TRUE,             # Display edge labels
-         posCol = "navy",                # Set positive relationships to blue
-         negCol = "red3",                 # Optionally set negative relationships to red
-         labels = abbrev_names,          # Use the automatically extracted variable names
-         title = plot_title,             # Use the specified plot title
-         title.cex = 1,                  # Increase font size of the title
-         label.cex = .8,                  # Increase font size of the variable names
-         vsize = 10,
-         label.scale = FALSE,
-         shape = "ellipse")
-}
-
-
-# get the coefficient into a matrix for the path diagrams, for the lowest AIC Model
-coef_matrix_AB_Sciaenid_NoLag <- get_part_Sciaenid(as_fitted_DAG(fit_semAB_Sciaenid_notrophics, lag=0))
-coef_matrix_AB_Sciaenid_YesLag <- get_part_Sciaenid(as_fitted_DAG(fit_semAB_Sciaenid_notrophics, lag=1))
-
-# create an empty data frame with specified column names
-df_Sciaenid <- data.frame(Salinity = numeric(),
-                          SpottedSeatrout = numeric(),
-                          PDSI = numeric(),
-                          Atlanticcroaker = numeric(),
-                          RedDrum = numeric(),
-                          BlueCrabSmall = numeric(),
-                          stringsAsFactors = FALSE)
-
-png("~/Desktop/AB_Sciaenid.png", width = 1200, height = 2000, res = 200)
-par(mfrow = c(2, 1))
-plot_qgraph_panel(df_Sciaenid, coef_matrix_AB_Sciaenid_NoLag$coef,  plot_title = "Sciaenid-AB-No Lag")
-plot_qgraph_panel(df_Sciaenid, coef_matrix_AB_Sciaenid_YesLag$coef, plot_title = "Sciaenid-AB-1 Year Lag")
-par(mfrow = c(1, 1))
-dev.off()
 
 
 
@@ -1257,34 +1201,10 @@ AIC(fit_semAB_Pred_fullbottomup)
 
 
 
-get_part_pred = function(x){
-  vars = c("Salinity","AllMullet","BullShark","AlligatorGar","PDSI", "AllMenhaden")
-  index = sapply( vars, FUN=\(y) grep(y,rownames(x$coef))[1] )
-  x$coef = x$coef[index,index]
-  dimnames(x$coef) = list( vars, vars )
-  return(x)
-}
-
-coef_matrix_GB_Pred_NoLag <- get_part_pred(as_fitted_DAG(fit_semAB_Pred_fulltopdown, lag=0))
-coef_matrix_GB_Pred_YesLag <- get_part_pred(as_fitted_DAG(fit_semAB_Pred_fulltopdown, lag=1))
-
-df_Pred_GB <- data.frame(Salinity = numeric(),
-                         AllMullet = numeric(),
-                         BullShark = numeric(),
-                         AlligatorGar = numeric(),
-                         PDSI = numeric(),
-                         AllMenhaden = numeric(),
-                         stringsAsFactors = FALSE)
-
-par(mfrow = c(1, 2))
-plot1 <- plot_qgraph_panel(df_Pred_GB, coef_matrix_GB_Pred_NoLag$coef,  plot_title = "Keystone Predator-GB-No Lag")
-plot2 <- plot_qgraph_panel(df_Pred_GB, coef_matrix_GB_Pred_YesLag$coef, plot_title = "Keystone Predator-GB-1 Year Lag")
-par(mfrow = c(1, 1))
-
-
-
 
 ###################################################################
+
+
 
 # get data into a time series object from all numeric columns except YEAR
 GB_Sciaenid_TS <- ts(
