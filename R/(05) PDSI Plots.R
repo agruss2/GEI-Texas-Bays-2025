@@ -63,81 +63,242 @@ process_PDSI_data <- function(df, export_name) {
   ))
 }
 
-result <- process_PDSI_data(loodf_AB_Pred, "loodf_AB_Pred_PDSI_forplotting")
+process_PDSI_data(loodf_AB_Pred, "loodf_AB_Pred_PDSI_forplotting")
+process_PDSI_data(loodf_GB_Pred, "loodf_GB_Pred_PDSI_forplotting")
+process_PDSI_data(loodf_AB_Sciaenid, "loodf_AB_Sciaenid_PDSI_forplotting")
+process_PDSI_data(loodf_GB_Sciaenid, "loodf_GB_Sciaenid_PDSI_forplotting")
+
 
 # Get mean PDSI values for Severely Dry and Severely Wet years
 mean_PDSI_dry_AB <- mean(loodf_AB_Pred_PDSI_forplotting$mean_est[loodf_AB_Pred_PDSI_forplotting$Var2 == "PDSI" & loodf_AB_Pred_PDSI_forplotting$weather == "Severely Dry"], na.rm = TRUE)
 mean_PDSI_wet_AB <- mean(loodf_AB_Pred_PDSI_forplotting$mean_est[loodf_AB_Pred_PDSI_forplotting$Var2 == "PDSI" & loodf_AB_Pred_PDSI_forplotting$weather == "Severely Wet"], na.rm = TRUE)
 
+mean_PDSI_dry_GB <- mean(loodf_GB_Pred_PDSI_forplotting$mean_est[loodf_GB_Pred_PDSI_forplotting$Var2 == "PDSI" & loodf_GB_Pred_PDSI_forplotting$weather == "Severely Dry"], na.rm = TRUE)
+mean_PDSI_wet_GB <- mean(loodf_GB_Pred_PDSI_forplotting$mean_est[loodf_GB_Pred_PDSI_forplotting$Var2 == "PDSI" & loodf_GB_Pred_PDSI_forplotting$weather == "Severely Wet"], na.rm = TRUE)
 
-# Remove Salinity-related rows
-exported_df_filtered  <- loodf_AB_Pred_PDSI_forplotting%>%
+# Remove and rename rows
+loodf_AB_Pred_PDSI_forplotting_filtered  <- loodf_AB_Pred_PDSI_forplotting%>%
   filter(!Var2 %in% c("PDSI", "Salinity_CopanoBay", "Salinity_MesquiteBay", "Salinity_AransasBay")) %>%
   mutate(
     Var2 = recode(Var2,
-                  "BullShark_AransasBay" = "Bull Shark (Aransas Bay)",
-                  "AllMenhaden_AransasBay" = "Menhaden (Aransas Bay)",
-                  "AlligatorGar_AransasBay" = "Alligator Gar (Aransas Bay)",
-                  "AllMullet_AransasBay" = "Mullet (Aransas Bay)",
-                  "BullShark_CopanoBay" = "Bull Shark (Copano Bay)",
-                  "AllMenhaden_CopanoBay" = "Menhaden (Copano Bay)",
-                  "AlligatorGar_CopanoBay" = "Alligator Gar (Copano Bay)",
-                  "AllMullet_CopanoBay" = "Mullet (Copano Bay)",
-                  "BullShark_MesquiteBay" = "Bull Shark (Mesquite Bay)",
-                  "AllMenhaden_MesquiteBay" = "Menhaden (Mesquite Bay)",
-                  "AlligatorGar_MesquiteBay" = "Alligator Gar (Mesquite Bay)",
-                  "AllMullet_MesquiteBay" = "Mullet (Mesquite Bay)"
+                  "BullShark_AransasBay" = "Bull Shark (AB)",
+                  "AllMenhaden_AransasBay" = "Menhaden (AB)",
+                  "AlligatorGar_AransasBay" = "Alligator Gar (AB)",
+                  "AllMullet_AransasBay" = "Mullet (AB)",
+                  "BullShark_CopanoBay" = "Bull Shark (CB)",
+                  "AllMenhaden_CopanoBay" = "Menhaden (CB)",
+                  "AlligatorGar_CopanoBay" = "Alligator Gar (CB)",
+                  "AllMullet_CopanoBay" = "Mullet (CB)",
+                  "BullShark_MesquiteBay" = "Bull Shark (MB)",
+                  "AllMenhaden_MesquiteBay" = "Menhaden (MB)",
+                  "AlligatorGar_MesquiteBay" = "Alligator Gar (MB)",
+                  "AllMullet_MesquiteBay" = "Mullet (MB)"
     )
   )
 
 
-# Create the bar plot
-PDSI_plot <- ggplot(exported_df_filtered, aes(x = Var2, y = mean_est, fill = weather)) +
+loodf_GB_Pred_PDSI_forplotting_filtered  <- loodf_GB_Pred_PDSI_forplotting%>%
+  filter(!Var2 %in% c("PDSI", "Salinity_WestBay", "Salinity_EastBay", "Salinity_TrinityBay", "Salinity_GalvestonBay")) %>%
+  mutate(
+    Var2 = recode(Var2,
+                  "BullShark_WestBay" = "Bull Shark (WB)",
+                  "Menhaden_WestBay" = "Menhaden (WB)",
+                  "AlligatorGar_WestBay" = "Alligator Gar (WB)",
+                  "Mullet_WestBay" = "Mullet (WB)",
+                  "BullShark_EastBay" = "Bull Shark (EB)",
+                  "Menhaden_EastBay" = "Menhaden (EB)",
+                  "AlligatorGar_EastBay" = "Alligator Gar (EB)",
+                  "Mullet_EastBay" = "Mullet (EB)",
+                  "BullShark_TrinityBay" = "Bull Shark (TB)",
+                  "Menhaden_TrinityBay" = "Menhaden (TB)",
+                  "AlligatorGar_TrinityBay" = "Alligator Gar (TB)",
+                  "Mullet_TrinityBay" = "Mullet (TB)",
+                  "BullShark_GalvestonBay" = "Bull Shark (GB)",
+                  "Menhaden_GalvestonBay" = "Menhaden (GB)",
+                  "AlligatorGar_GalvestonBay" = "Alligator Gar (GB)",
+                  "Mullet_GalvestonBay" = "Mullet (GB)"
+    )
+  )
+
+loodf_GB_Sciaenid_PDSI_forplotting_filtered  <- loodf_GB_Sciaenid_PDSI_forplotting%>%
+  filter(!Var2 %in% c("PDSI", "Salinity_WestBay", "Salinity_EastBay", "Salinity_TrinityBay", "Salinity_GalvestonBay")) %>%
+  mutate(
+    Var2 = recode(Var2,
+                  "RedDrum_WestBay" = "Red Drum (WB)",
+                  "BlueCrabSmall_WestBay" = "Blue Crab  (WB)",
+                  "SpottedSeatrout_WestBay" = "Spotted Seatrout (WB)",
+                  "Atlanticcroaker_WestBay" = "Atlantic Croaker (WB)",
+                  "RedDrum_EastBay" = "Red Drum (EB)",
+                  "BlueCrabSmall_EastBay" = "Blue Crab  (EB)",
+                  "SpottedSeatrout_EastBay" = "Spotted Seatrout (EB)",
+                  "Atlanticcroaker_EastBay" = "Atlantic Croaker (EB)",
+                  "RedDrum_TrinityBay" = "Red Drum (TB)",
+                  "BlueCrabSmall_TrinityBay" = "Blue Crab  (TB)",
+                  "SpottedSeatrout_TrinityBay" = "Spotted Seatrout (TB)",
+                  "Atlanticcroaker_TrinityBay" = "Atlantic Croaker (TB)",
+                  "RedDrum_GalvestonBay" = "Red Drum (GB)",
+                  "BlueCrabSmall_GalvestonBay" = "Blue Crab (GB)",
+                  "SpottedSeatrout_GalvestonBay" = "Spotted Seatrout (GB)",
+                  "Atlanticcroaker_GalvestonBay" = "Atlantic Croaker (GB)"
+    )
+  )
+
+loodf_AB_Sciaenid_PDSI_forplotting_filtered  <- loodf_AB_Sciaenid_PDSI_forplotting%>%
+  filter(!Var2 %in% c("PDSI", "Salinity_CopanoBay", "Salinity_MesquiteBay", "Salinity_AransasBay")) %>%
+  mutate(
+    Var2 = recode(Var2,
+                  "RedDrum_CopanoBay" = "Red Drum (CB)",
+                  "BlueCrabSmall_CopanoBay" = "Blue Crab  (CB)",
+                  "SpottedSeatrout_CopanoBay" = "Spotted Seatrout (CB)",
+                  "Atlanticcroaker_CopanoBay" = "Atlantic Croaker (CB)",
+                  "RedDrum_MesquiteBay" = "Red Drum (MB)",
+                  "BlueCrabSmall_MesquiteBay" = "Blue Crab  (MB)",
+                  "SpottedSeatrout_MesquiteBay" = "Spotted Seatrout (MB)",
+                  "Atlanticcroaker_MesquiteBay" = "Atlantic Croaker (MB)",
+                  "RedDrum_AransasBay" = "Red Drum (AB)",
+                  "BlueCrabSmall_AransasBay" = "Blue Crab  (AB)",
+                  "SpottedSeatrout_AransasBay" = "Spotted Seatrout (AB)",
+                  "Atlanticcroaker_AransasBay" = "Atlantic Croaker (AB)",
+    )
+  )
+
+# Create the bar plots
+PDSI_plot_AB_Pred <- ggplot(loodf_AB_Pred_PDSI_forplotting_filtered , aes(x = Var2, y = mean_est, fill = weather)) +
     geom_bar(stat = "identity", position = "dodge", width = 0.7, color = "black", alpha = 0.8) +
-  
-  # Create error bars extending only in the correct direction
   geom_errorbar(aes(
     ymin = ifelse(mean_est > 0, mean_est, mean_est - se_est),  
     ymax = ifelse(mean_est > 0, mean_est + se_est, mean_est)   
   ), width = 0.25, position = position_dodge(0.7)) +  
-  
-  # Color for weather categories
-  scale_fill_manual(values = c("Severely Dry" = "#e9c46a", "Severely Wet" = "#264653")) +
-  
+    scale_fill_manual(values = c("Severely Dry" = "#e9c46a", "Severely Wet" = "#264653")) +
   theme_bw() +  
-  
-  # Axis and label customization
-  labs(
-    x = NULL,  
-    y = "Mean Standardized CPUE",  
-    fill = NULL  
-  ) +
-  
-  # Additional theme adjustments
+  labs(x = NULL,y = "Mean Standardized CPUE", fill = NULL)+
   theme(
-    axis.text.x = element_text(angle = 60, hjust = 1, size = 12),  
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 12),  
     axis.text.y = element_text(size = 12),
     axis.title.x = element_text(size = 14),
     axis.title.y = element_text(size = 16),
     plot.title = element_blank(),  
-    legend.position = c(0.85, 0.90),  
+    legend.position = c(0.88, 0.90),  
     legend.title = element_text(size = 12),
     legend.text = element_text(size = 16),
     legend.background = element_blank(),
     legend.key.height = unit(1, "cm")  
   ) +
-  # Annotate the mean PDSI values for both Severely Dry and Severely Wet
   annotate("text", 
-           x = 9.6,  # Adjust x position as needed to be right under the legend
-           y = max(exported_df_filtered$mean_est) - 0.23,  # Adjust y position to place below the legend
+           x = 1.3,  
+           y = 1.25, 
            label = paste("Severely Dry Mean PDSI = ", round(mean_PDSI_dry_AB, 1)),
            size = 4.5, hjust = 0, vjust = 0.5, color = "black") +
   annotate("text", 
-           x = 9.6,  # Adjust x position for the second annotation
-           y = max(exported_df_filtered$mean_est) - 0.37,  # Place below the first annotation
+           x = 1.3,  
+           y = 1.05 ,
            label = paste("Severely Wet Mean PDSI = ", round(mean_PDSI_wet_AB, 1)),
            size = 4.5, hjust = 0, vjust = 0.5, color = "black") 
+print(PDSI_plot_AB_Pred)
 
-print(PDSI_plot)
+PDSI_plot_GB_Pred <- ggplot(loodf_GB_Pred_PDSI_forplotting_filtered , aes(x = Var2, y = mean_est, fill = weather)) +
+  geom_bar(stat = "identity", position = "dodge", width = 0.7, color = "black", alpha = 0.8) +
+  geom_errorbar(aes(
+    ymin = ifelse(mean_est > 0, mean_est, mean_est - se_est),  
+    ymax = ifelse(mean_est > 0, mean_est + se_est, mean_est)   
+  ), width = 0.25, position = position_dodge(0.7)) +  
+  scale_fill_manual(values = c("Severely Dry" = "#e9c46a", "Severely Wet" = "#264653")) +
+  theme_bw() +  
+  labs(x = NULL,y = "Mean Standardized CPUE", fill = NULL)+
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 12),  
+    axis.text.y = element_text(size = 12),
+    axis.title.x = element_text(size = 14),
+    axis.title.y = element_text(size = 16),
+    plot.title = element_blank(),  
+    legend.position="none")  +
+  annotate("text", 
+           x = 1.8,  
+           y = -1.0,  
+           label = paste("Severely Dry Mean PDSI = ", round(mean_PDSI_dry_GB, 1)),
+           size = 4.5, hjust = 0, vjust = 0.5, color = "black") +
+  annotate("text", 
+           x = 1.8,  
+           y = -1.2,  
+           label = paste("Severely Wet Mean PDSI = ", round(mean_PDSI_wet_GB, 1)),
+           size = 4.5, hjust = 0, vjust = 0.5, color = "black") 
+print(PDSI_plot_GB_Pred)
 
+Pred_PDSI_Plots <- grid.arrange(PDSI_plot_AB_Pred, PDSI_plot_GB_Pred,
+                                    ncol = 1, nrow = 2)
+
+ggsave("Pred_PDSI_Plots.png", Pred_PDSI_Plots, dpi = 150, bg = "white",
+       width = 1600,
+       height = 2000,
+       units = "px") 
+
+
+PDSI_plot_GB_Sciaenid <- ggplot(loodf_GB_Sciaenid_PDSI_forplotting_filtered , aes(x = Var2, y = mean_est, fill = weather)) +
+  geom_bar(stat = "identity", position = "dodge", width = 0.7, color = "black", alpha = 0.8) +
+  geom_errorbar(aes(
+    ymin = ifelse(mean_est > 0, mean_est, mean_est - se_est),  
+    ymax = ifelse(mean_est > 0, mean_est + se_est, mean_est)   
+  ), width = 0.25, position = position_dodge(0.7)) +  
+  scale_fill_manual(values = c("Severely Dry" = "#e9c46a", "Severely Wet" = "#264653")) +
+  theme_bw() +  
+  labs(x = NULL,y = "Mean Standardized CPUE", fill = NULL)+
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 12),  
+    axis.text.y = element_text(size = 12),
+    axis.title.x = element_text(size = 14),
+    axis.title.y = element_text(size = 16),
+    plot.title = element_blank(),  
+    legend.position="none")  +
+  annotate("text", 
+           x = 10.8,  
+           y = 1.32,  
+           label = paste("Severely Dry Mean PDSI = ", round(mean_PDSI_dry_GB, 1)),
+           size = 4.5, hjust = 0, vjust = 0.5, color = "black") +
+  annotate("text", 
+           x = 10.8,  
+           y = 1.12,  
+           label = paste("Severely Wet Mean PDSI = ", round(mean_PDSI_wet_GB, 1)),
+           size = 4.5, hjust = 0, vjust = 0.5, color = "black") 
+print(PDSI_plot_GB_Sciaenid)
+
+PDSI_plot_AB_Sciaenid <- ggplot(loodf_AB_Sciaenid_PDSI_forplotting_filtered , aes(x = Var2, y = mean_est, fill = weather)) +
+  geom_bar(stat = "identity", position = "dodge", width = 0.7, color = "black", alpha = 0.8) +
+  geom_errorbar(aes(
+    ymin = ifelse(mean_est > 0, mean_est, mean_est - se_est),  
+    ymax = ifelse(mean_est > 0, mean_est + se_est, mean_est)   
+  ), width = 0.25, position = position_dodge(0.7)) +  
+  scale_fill_manual(values = c("Severely Dry" = "#e9c46a", "Severely Wet" = "#264653")) +
+  theme_bw() +  
+  labs(x = NULL,y = "Mean Standardized CPUE", fill = NULL)+
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 12),  
+    axis.text.y = element_text(size = 12),
+    axis.title.x = element_text(size = 14),
+    axis.title.y = element_text(size = 16),
+    plot.title = element_blank(),  
+    legend.position = c(0.77, 0.2),  
+    legend.title = element_text(size = 12),
+    legend.text = element_text(size = 16),
+    legend.background = element_blank(),
+    legend.key.height = unit(1, "cm")  
+  ) +
+  annotate("text", 
+           x = 8.9,  
+           y = 1.32,  
+           label = paste("Severely Dry Mean PDSI = ", round(mean_PDSI_dry_AB, 1)),
+           size = 4.5, hjust = 0, vjust = 0.5, color = "black") +
+  annotate("text", 
+           x = 8.9,  
+           y = 1.12,  
+           label = paste("Severely Wet Mean PDSI = ", round(mean_PDSI_wet_AB, 1)),
+           size = 4.5, hjust = 0, vjust = 0.5, color = "black") 
+print(PDSI_plot_AB_Sciaenid)
+
+Sciaenid_PDSI_Plots <- grid.arrange(PDSI_plot_AB_Sciaenid, PDSI_plot_GB_Sciaenid,
+  ncol = 1, nrow = 2)
+
+ggsave("Sciaenid_PDSI_Plots.png", Sciaenid_PDSI_Plots, dpi = 150, bg = "white",
+       width = 1600,
+       height = 2000,
+       units = "px") 
 
