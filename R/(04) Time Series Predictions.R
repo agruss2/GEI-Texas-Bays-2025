@@ -131,9 +131,18 @@ results_semAB_Sciaenid <- cross_validation_ts(
   seed = 42,
   output_df_name = "loodf_AB_Sciaenid" 
 )
-print(results_semGB_Sciaenid)
+print(results_semAB_Sciaenid)
 
-
+results_semAB_Pred <- cross_validation_ts(
+  tsdata = AB_Pred_TS,
+  sem = semAB_Pred_fulltopdown,
+  fit_function = dsem,
+  loo_function = loo_residuals,
+  chunk_size = 4, 
+  seed = 42,
+  output_df_name = "loodf_AB_Pred" 
+)
+print(results_semAB_Pred)
 
 ########## Time Series Plots
 
