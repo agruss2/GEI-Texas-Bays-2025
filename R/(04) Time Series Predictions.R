@@ -562,7 +562,7 @@ BlueCrabSmall_GalvestonBay <- plot_observed_vs_predicted_no_xtext(
 
 BlueCrabSmall_TrinityBay <- plot_observed_vs_predicted_no_xtext(
   df = loodf_GB_Sciaenid, response_var = "BlueCrabSmall_TrinityBay",
-  predictions_color = "#2a9d8f", yaxis_title = "Blue Crab Small CPUE",
+  predictions_color = "#2a9d8f", yaxis_title = "Blue Crab CPUE",
   plot_title = "Trinity Bay", results_df = results_semGB_Sciaenid)
 
 BlueCrabSmall_WestBay <- plot_observed_vs_predicted_no_xtext(
@@ -645,7 +645,7 @@ BlueCrabSmall_CopanoBay <- plot_observed_vs_predicted_no_xtext(
 
 BlueCrabSmall_AransasBay <- plot_observed_vs_predicted_no_xtext(
   df = loodf_AB_Sciaenid, response_var = "BlueCrabSmall_AransasBay",
-  predictions_color = "#2a9d8f", yaxis_title = "Blue Crab Small CPUE",
+  predictions_color = "#2a9d8f", yaxis_title = "Blue Crab CPUE",
   plot_title = "Aransas Bay", results_df = results_semAB_Sciaenid)
 
 BlueCrabSmall_MesquiteBay <- plot_observed_vs_predicted_no_xtext(
@@ -679,4 +679,88 @@ ABpredictions_Sciaenid <- grid.arrange(
 ggsave("ABpredictions_Sciaenid.png", ABpredictions_Sciaenid, dpi = 150, bg = "white",
        width = 3200,
        height = 2000,
+       units = "px")
+
+
+#summary plot for adjusted R2 values 
+
+#merge the data frames into one
+squared_df <- bind_rows(results_semAB_Pred, results_semGB_Pred, results_semAB_Sciaenid, results_semGB_Sciaenid)
+squared_df <- squared_df %>%
+  separate(Var2, into = c("species", "bay"), sep = "_", remove = FALSE) %>%
+  mutate(bay = gsub("([a-z])([A-Z])", "\\1 \\2", bay)) %>%  
+  mutate(species = case_when(
+    species == "AllMullet" ~ "Mullet",
+    species == "AllMenhaden" ~ "Menhaden",
+    species == "BlueCrabSmall" ~ "BlueCrab",
+    TRUE ~ species  
+  )) %>%
+  filter(!species %in% c("PDSI", "Salinity")) %>%  
+  mutate(major_bay = case_when(
+    bay %in% c("Aransas Bay", "Copano Bay", "Mesquite Bay") ~ "Aransas Bay",
+    bay %in% c("Galveston Bay", "West Bay", "East Bay", "Trinity Bay") ~ "Galveston Bay",
+    TRUE ~ NA_character_  
+  )) %>%
+  mutate(trophic_system = case_when(
+    species %in% c("BullShark", "AlligatorGar", "Mullet", "Menhaden") ~ "Keystone Predator",
+    species %in% c("RedDrum", "SpottedSeatrout", "BlueCrab", "Atlanticcroaker") ~ "Sciaenid",
+    TRUE ~ NA_character_  
+  ))
+
+bay_order <- c("Aransas Bay", "Copano Bay", "Mesquite Bay", "Galveston Bay", "Trinity Bay", "East Bay", "West Bay")
+squared_df$bay <- factor(squared_df$bay, levels = bay_order)
+squared_df$major_bay <- factor(squared_df$major_bay, levels = c("Aransas Bay", "Galveston Bay"))
+
+species_colors <- c(
+  "BullShark" = "#f28482",
+  "AlligatorGar" = "indianred3",
+  "RedDrum" = "#f28482",
+  "SpottedSeatrout" = "indianred3",
+  "BlueCrab" = "#2a9d8f",
+  "Atlanticcroaker" = "cadetblue3",
+  "Mullet" = "#2a9d8f",
+  "Menhaden" = "cadetblue3"
+)
+
+plot_keystone <- ggplot(squared_df %>% filter(trophic_system == "Keystone Predator"), 
+                        aes(x = bay, y = adjusted_R2, fill = species)) +
+  geom_point(size = 9, alpha = 0.7, shape = 21, color = "black", stroke = 1.2) +
+  scale_fill_manual(values = species_colors) +  
+  scale_y_continuous(limits = c(-0.35, 0.75), breaks = seq(-0.35, 0.75, by = 0.1)) +  
+  theme_bw() +      theme(axis.text.x = element_text(angle = 45, hjust = 1),  
+                          axis.title.x = element_text(size = 12),  
+                          axis.title.y = element_text(size = 12),  
+                          legend.position = "top", 
+                          legend.direction = "horizontal",  
+                          legend.title = element_blank(),  # Removes the legend title
+                          legend.text = element_text(size = 12),  
+                          plot.title = element_text(size = 14, face = "bold", hjust = 0.5),  # Centers title above legend
+                          axis.text.y = element_text(size = 12)) + 
+  labs(title = "Keystone Predator Trophic System",  # Title above the legend
+       x = "Minor Bay", 
+       y = "Adjusted R²")
+
+plot_sciaenid <- ggplot(squared_df %>% filter(trophic_system == "Sciaenid"), 
+                        aes(x = bay, y = adjusted_R2, fill = species)) +
+  geom_point(size = 9, alpha = 0.7, shape = 21, color = "black", stroke = 1.2) +
+  scale_fill_manual(values = species_colors) +  
+  scale_y_continuous(limits = c(-0.35, 0.75), breaks = seq(-0.35, 0.75, by = 0.1)) +  
+  theme_bw() +    theme(axis.text.x = element_text(angle = 45, hjust = 1),  
+                        axis.title.x = element_text(size = 12),  
+                        axis.title.y = element_text(size = 12),  
+                        legend.position = "top", 
+                        legend.direction = "horizontal",  
+                        legend.title = element_blank(),  # Removes the legend title
+                        legend.text = element_text(size = 12),  
+                        plot.title = element_text(size = 14, face = "bold", hjust = 0.5),  # Centers title above legend
+                        axis.text.y = element_text(size = 12)) + 
+  labs(title = "Sciaenid Trophic System",  # Title above the legend
+       x = "Minor Bay", 
+       y = "Adjusted R²")
+
+r2plot<-grid.arrange(plot_keystone, plot_sciaenid, ncol = 2)
+
+ggsave("r2plot.png", r2plot, dpi = 150, bg = "white",
+       width = 2000,
+       height = 1000,
        units = "px")
