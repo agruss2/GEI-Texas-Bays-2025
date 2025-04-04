@@ -170,6 +170,18 @@ results <- cross_validation_ts(
 )
 print(results_semAB_Sciaenid)
 
+# inspect residuals
+samples <- loo_residuals(fit_semAB_Sciaenid_notrophics,  what="samples", track_progress=FALSE)
+which_use = which(!is.na(AB_Sciaenid_TS))
+fitResp = loo_residuals(fit_semAB_Sciaenid_notrophics, what="loo", track_progress=FALSE)[,'est']
+simResp = apply(samples, MARGIN=3, FUN=as.vector)[which_use,]
+res = DHARMa::createDHARMa(
+  simulatedResponse = simResp,
+  observedResponse = unlist(AB_Sciaenid_TS)[which_use],
+  fittedPredictedResponse = fitResp )
+plot(res)
+
+
 # calculcate adjusted R2 values
 results_semAB_Pred <- as.data.frame(results_semAB_Pred)
 results_semGB_Pred <- as.data.frame(results_semGB_Pred)
