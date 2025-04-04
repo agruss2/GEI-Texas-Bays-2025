@@ -136,7 +136,7 @@ print(results_semAB_Pred)
 
 results <- cross_validation_ts(
   tsdata = GB_Pred_TS,
-  sem = semGB_Pred_fulltopdown,
+  sem = semGB_Pred_fullbottomup,
   fit_function = dsem,
   loo_function = loo_residuals,
   chunk_size = 4, 

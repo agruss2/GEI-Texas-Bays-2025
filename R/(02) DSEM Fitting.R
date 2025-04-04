@@ -2544,8 +2544,8 @@ AIC(fit_semGB_Pred_fullbottomup) #WINNER
 
 
 # The full top-down model is the winner for Aransas Bay for the Keystone Predator System
-# The full bottom-up model is the winners for Galveston Bay for the Keystone Predator System
-# The full bottom-up model is the winner for Galveston Bay for the sciaenid system. 
-# And the no-trophic relationship model is the winner for Aransas Bay for the sciaenid system. 
+# The full bottom-up model is the winner for Galveston Bay for the Keystone Predator System
+# The full bottom-up model is the winner for Galveston Bay for the sciaenid system
+# And the no-trophic relationship model is the winner for Aransas Bay for the sciaenid system 
 
 

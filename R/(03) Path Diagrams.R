@@ -203,8 +203,8 @@ dev.off()
 #### GB keystone
 
 
-coef_matrix_GB_Pred_NoLag <- get_part_Pred(as_fitted_DAG(fit_semGB_Pred_fulltopdown, lag=0))$coef
-coef_matrix_GB_Pred_YesLag <- get_part_Pred(as_fitted_DAG(fit_semGB_Pred_fulltopdown, lag=1))$coef
+coef_matrix_GB_Pred_NoLag <- get_part_Pred(as_fitted_DAG(fit_semGB_Pred_fullbottomup, lag=0))$coef
+coef_matrix_GB_Pred_YesLag <- get_part_Pred(as_fitted_DAG(fit_semGB_Pred_fullbottomup, lag=1))$coef
 
 df_Pred<- data.frame(Salinity = numeric(),
                      AlligatorGar = numeric(),
