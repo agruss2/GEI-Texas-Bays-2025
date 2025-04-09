@@ -1,11 +1,11 @@
 
 library(dplyr)
 library(stringr)
+library(ggplot2)
 
 #### calculcate and plot total effects 
 
 # first: AB key stone predator systems
-
 totaleffectsABpred<-total_effect(fit_semAB_Pred_fulltopdown, n_lags = 4)
 
 # removing unwanted observations 
@@ -23,13 +23,11 @@ totaleffectsABpred_mean <- totaleffectsABpred %>%
     from_variable = str_sub(from, 1, 8)  
   ) %>%
   group_by(lag, to_variable, from_variable) %>%
-  summarize(
-    mean_total_effect = mean(total_effect, na.rm = TRUE),
+summarize(mean_total_effect = mean(total_effect, na.rm = TRUE),
     se_total_effect = sd(total_effect, na.rm = TRUE) / sqrt(n()),
     mean_direct_effect = mean(direct_effect, na.rm = TRUE),
     se_direct_effect = sd(direct_effect, na.rm = TRUE) / sqrt(n()),
-    .groups = "drop"
-  )
+    .groups = "drop")
 
 # remove observations where salinity is a response 
 totaleffectsABpred_mean <- totaleffectsABpred_mean %>%
@@ -37,14 +35,11 @@ totaleffectsABpred_mean <- totaleffectsABpred_mean %>%
 
 # create column for differnet relationship types 
 totaleffectsABpred_mean <- totaleffectsABpred_mean %>%
-  mutate(
-    relationship_type = case_when(
+ mutate(relationship_type = case_when(
       from_variable == "PDSI" ~ "PDSI",
       from_variable == "Salinity" ~ "Salinity",
       substr(to_variable, 1, 7) == substr(from_variable, 1, 7) ~ "Density Dependent",
-      TRUE ~ "Trophic"
-    )
-  )
+      TRUE ~ "Trophic"))
 
 # calculcate mean absolute values (may help with communication overall variable importance)
 totaleffectsABpred_mean <- totaleffectsABpred_mean %>%
@@ -55,7 +50,6 @@ relationship_type_averages <- totaleffectsABpred_mean %>%
   summarise(avg_abs_effect = mean(mean_total_effect_absvalue, na.rm = TRUE)) %>%
   arrange(desc(avg_abs_effect))
 
-
 # creating a color pallette
 custom_colors <- c(
   "Salinity" = "#f4a261", 
@@ -63,12 +57,19 @@ custom_colors <- c(
   "AllMulle" = "#e9c46a", 
   "AllMenha" = "#90a955",
   "BullShar" = "#2a9d8f", 
-  "Alligato" = "#264653"
-)
+  "Alligato" = "#264653")
 
 # create vertical breaks for plot
 x_breaks <- unique(as.numeric(factor(totaleffectsABpred_mean$to_variable)))
 vline_positions <- x_breaks + 0.5  
+
+# create legend labels
+lag_labels <- c("0" = "No Lag", "1" = "1 Year Lag")
+predictor_labels <- c(
+  "Alligato" = "Alligator Gar",
+  "AllMenha" = "Menhaden",
+  "AllMulle" = "Mullet",
+  "BullShar" = "Bull Shark")
 
 ggplot(totaleffectsABpred_mean, aes(x = to_variable, y = mean_total_effect, fill = from_variable)) +
   geom_errorbar(aes(
@@ -76,24 +77,109 @@ ggplot(totaleffectsABpred_mean, aes(x = to_variable, y = mean_total_effect, fill
     ymax = ifelse(mean_total_effect > 0, mean_total_effect + se_total_effect, mean_total_effect)   
   ), width = 0.25, position = position_dodge(0.9)) +
   geom_bar(stat = "identity", position = "dodge", alpha = 0.7, color = "black") +
-    geom_vline(xintercept = vline_positions, linetype = "dashed", color = "gray50") +
-  facet_wrap(~ lag) +
-  labs(
-    y = "Mean Total Effect",
-    x = "Variable (To)",
-    fill = "Variable (From)"
-  ) +
+  geom_vline(xintercept = vline_positions, linetype = "dashed", color = "gray50") +
+  facet_wrap(~ lag, labeller = labeller(lag = lag_labels)) +
+  labs(y = "Mean Total Effect", x = "Response", fill = "Predictor") +
   theme_bw() +
-  theme(
+  theme(strip.text = element_text(face = "bold", size = 14),
     axis.text.x = element_text(angle = 45, vjust = 0.8),
     axis.text.y = element_text(size = 12),
     axis.title.y = element_text(size = 14),
     axis.title.x = element_text(size = 14),
     plot.title = element_text(size = 16, hjust = 0.5),
     legend.title = element_text(size = 14),
-    legend.text = element_text(size = 12)
-  ) +
-  scale_fill_manual(values = custom_colors)
+    legend.text = element_text(size = 12)) +
+  scale_fill_manual(values = custom_colors, labels = predictor_labels)
 
 
-  
+########################
+
+
+# second: GB key stone predator systems
+totaleffectsGBpred<-total_effect(fit_semGB_Pred_fullbottomup, n_lags = 4)
+
+# removing unwanted observations 
+totaleffectsGBpred <- totaleffectsGBpred %>%
+  filter(lag < 2, 
+         total_effect != 0, 
+         total_effect != 1.0,
+         !(str_detect(to, "_") & str_detect(from, "_") & 
+             str_extract(to, "(?<=_).*") != str_extract(from, "(?<=_).*")))
+
+# calculate the mean and standard error (se) by grouping lag, 'to' and 'from' groups
+totaleffectsGBpred_mean <- totaleffectsGBpred %>%
+  mutate(
+    to_variable = str_extract(to, "^[^_]+"),  
+    from_variable = str_sub(from, 1, 3)  
+  ) %>%
+  group_by(lag, to_variable, from_variable) %>%
+  summarize(mean_total_effect = mean(total_effect, na.rm = TRUE),
+            se_total_effect = sd(total_effect, na.rm = TRUE) / sqrt(n()),
+            mean_direct_effect = mean(direct_effect, na.rm = TRUE),
+            se_direct_effect = sd(direct_effect, na.rm = TRUE) / sqrt(n()),
+            .groups = "drop")
+
+# remove observations where salinity is a response 
+totaleffectsGBpred_mean <- totaleffectsGBpred_mean %>%
+  filter(to_variable != "Salinity")
+
+# create column for different relationship types 
+totaleffectsGBpred_mean <- totaleffectsGBpred_mean %>%
+  mutate(relationship_type = case_when(
+    from_variable == "PDS" ~ "PDSI",
+    from_variable == "Sal" ~ "Sal",
+    substr(to_variable, 1, 3) == substr(from_variable, 1, 3) ~ "Density Dependent",
+    TRUE ~ "Trophic"))
+
+# calculcate mean absolute values (may help with communication overall variable importance)
+totaleffectsGBpred_mean <- totaleffectsGBpred_mean %>%
+  mutate(mean_total_effect_absvalue = abs(mean_total_effect))
+
+relationship_type_averages <- totaleffectsGBpred_mean %>%
+  group_by(relationship_type) %>%
+  summarise(avg_abs_effect = mean(mean_total_effect_absvalue, na.rm = TRUE)) %>%
+  arrange(desc(avg_abs_effect))
+
+# creating a color pallette
+custom_colors <- c(
+  "Sal" = "#f4a261", 
+  "PDS" = "#f28482", 
+  "Mul" = "#e9c46a", 
+  "Men" = "#90a955",
+  "Bul" = "#2a9d8f", 
+  "All" = "#264653")
+
+# create vertical breaks for plot
+x_breaks <- unique(as.numeric(factor(totaleffectsGBpred_mean$to_variable)))
+vline_positions <- x_breaks + 0.5  
+
+# create legend labels
+lag_labels <- c("0" = "No Lag", "1" = "1 Year Lag")
+predictor_labels <- c(
+  "Sal" = "Salinity",
+  "PDS" = "PDSI",
+  "All" = "Alligator Gar",
+  "Men" = "Menhaden",
+  "Mul" = "Mullet",
+  "Bul" = "Bull Shark")
+
+ggplot(totaleffectsGBpred_mean, aes(x = to_variable, y = mean_total_effect, fill = from_variable)) +
+  geom_errorbar(aes(
+    ymin = ifelse(mean_total_effect > 0, mean_total_effect, mean_total_effect - se_total_effect),  
+    ymax = ifelse(mean_total_effect > 0, mean_total_effect + se_total_effect, mean_total_effect)   
+  ), width = 0.25, position = position_dodge(0.9)) +
+  geom_bar(stat = "identity", position = "dodge", alpha = 0.7, color = "black") +
+  geom_vline(xintercept = vline_positions, linetype = "dashed", color = "gray50") +
+  facet_wrap(~ lag, labeller = labeller(lag = lag_labels)) +
+  labs(y = "Mean Total Effect", x = "Response", fill = "Predictor") +
+  theme_bw() +
+  theme(strip.text = element_text(face = "bold", size = 14),
+        axis.text.x = element_text(angle = 45, vjust = 0.8),
+        axis.text.y = element_text(size = 12),
+        axis.title.y = element_text(size = 14),
+        axis.title.x = element_text(size = 14),
+        plot.title = element_text(size = 16, hjust = 0.5),
+        legend.title = element_text(size = 14),
+        legend.text = element_text(size = 12)) +
+  scale_fill_manual(values = custom_colors, labels = predictor_labels)
+
