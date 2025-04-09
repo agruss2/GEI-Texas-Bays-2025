@@ -51,7 +51,7 @@ relationship_type_averages <- totaleffectsABpred_mean %>%
   arrange(desc(avg_abs_effect))
 
 # creating a color pallette
-custom_colors <- c(
+custom_colors_ABpred <- c(
   "Salinity" = "#f4a261", 
   "PDSI" = "#f28482", 
   "AllMulle" = "#e9c46a", 
@@ -65,7 +65,7 @@ vline_positions <- x_breaks + 0.5
 
 # create legend labels
 lag_labels <- c("0" = "No Lag", "1" = "1 Year Lag")
-predictor_labels <- c(
+predictor_labels_ABpred <- c(
   "Alligato" = "Alligator Gar",
   "AllMenha" = "Menhaden",
   "AllMulle" = "Mullet",
@@ -79,7 +79,8 @@ ggplot(totaleffectsABpred_mean, aes(x = to_variable, y = mean_total_effect, fill
   geom_bar(stat = "identity", position = "dodge", alpha = 0.7, color = "black") +
   geom_vline(xintercept = vline_positions, linetype = "dashed", color = "gray50") +
   facet_wrap(~ lag, labeller = labeller(lag = lag_labels)) +
-  labs(y = "Mean Total Effect", x = "Response", fill = "Predictor") +
+  labs(title = "Aransas Bay - Keystone Predator System",
+       y = "Mean Total Effect", x = "Response", fill = "Predictor") +
   theme_bw() +
   theme(strip.text = element_text(face = "bold", size = 14),
     axis.text.x = element_text(angle = 45, vjust = 0.8),
@@ -89,7 +90,7 @@ ggplot(totaleffectsABpred_mean, aes(x = to_variable, y = mean_total_effect, fill
     plot.title = element_text(size = 16, hjust = 0.5),
     legend.title = element_text(size = 14),
     legend.text = element_text(size = 12)) +
-  scale_fill_manual(values = custom_colors, labels = predictor_labels)
+  scale_fill_manual(values = custom_colors_ABpred, labels = predictor_labels_ABpred)
 
 
 ########################
@@ -141,7 +142,7 @@ relationship_type_averages <- totaleffectsGBpred_mean %>%
   arrange(desc(avg_abs_effect))
 
 # creating a color pallette
-custom_colors <- c(
+custom_colors_GBpred <- c(
   "Sal" = "#f4a261", 
   "PDS" = "#f28482", 
   "Mul" = "#e9c46a", 
@@ -155,7 +156,7 @@ vline_positions <- x_breaks + 0.5
 
 # create legend labels
 lag_labels <- c("0" = "No Lag", "1" = "1 Year Lag")
-predictor_labels <- c(
+predictor_labels_GBpred <- c(
   "Sal" = "Salinity",
   "PDS" = "PDSI",
   "All" = "Alligator Gar",
@@ -171,7 +172,8 @@ ggplot(totaleffectsGBpred_mean, aes(x = to_variable, y = mean_total_effect, fill
   geom_bar(stat = "identity", position = "dodge", alpha = 0.7, color = "black") +
   geom_vline(xintercept = vline_positions, linetype = "dashed", color = "gray50") +
   facet_wrap(~ lag, labeller = labeller(lag = lag_labels)) +
-  labs(y = "Mean Total Effect", x = "Response", fill = "Predictor") +
+  labs(title = "Galveston Bay - Keystone Predator System",
+  y = "Mean Total Effect", x = "Response", fill = "Predictor") +
   theme_bw() +
   theme(strip.text = element_text(face = "bold", size = 14),
         axis.text.x = element_text(angle = 45, vjust = 0.8),
@@ -181,5 +183,5 @@ ggplot(totaleffectsGBpred_mean, aes(x = to_variable, y = mean_total_effect, fill
         plot.title = element_text(size = 16, hjust = 0.5),
         legend.title = element_text(size = 14),
         legend.text = element_text(size = 12)) +
-  scale_fill_manual(values = custom_colors, labels = predictor_labels)
+  scale_fill_manual(values = custom_colors_GBpred, labels = predictor_labels_GBpred)
 
