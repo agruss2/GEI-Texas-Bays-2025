@@ -83,7 +83,7 @@ ggplot(totaleffectsABpred_mean, aes(x = to_variable, y = mean_total_effect, fill
        y = "Mean Total Effect", x = "Response", fill = "Predictor") +
   theme_bw() +
   theme(strip.text = element_text(face = "bold", size = 14),
-    axis.text.x = element_text(angle = 45, vjust = 0.8),
+    axis.text.x = element_text(angle = 45, vjust = 0.6),
     axis.text.y = element_text(size = 12),
     axis.title.y = element_text(size = 14),
     axis.title.x = element_text(size = 14),
@@ -176,7 +176,7 @@ ggplot(totaleffectsGBpred_mean, aes(x = to_variable, y = mean_total_effect, fill
   y = "Mean Total Effect", x = "Response", fill = "Predictor") +
   theme_bw() +
   theme(strip.text = element_text(face = "bold", size = 14),
-        axis.text.x = element_text(angle = 45, vjust = 0.8),
+        axis.text.x = element_text(angle = 45, vjust = 0.6),
         axis.text.y = element_text(size = 12),
         axis.title.y = element_text(size = 14),
         axis.title.x = element_text(size = 14),
