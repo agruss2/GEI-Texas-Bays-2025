@@ -1927,6 +1927,16 @@ AlligatorGar_TrinityBay -> AlligatorGar_TrinityBay, 1, l29
 AlligatorGar_GalvestonBay -> AlligatorGar_GalvestonBay, 1, l30
 AlligatorGar_WestBay -> AlligatorGar_WestBay, 1, l31
 AlligatorGar_EastBay -> AlligatorGar_EastBay, 1, l32
+
+Mullet_TrinityBay -> Mullet_TrinityBay, 1, z9
+Mullet_GalvestonBay -> Mullet_GalvestonBay, 1, z10
+Mullet_WestBay -> Mullet_WestBay, 1, z11
+Mullet_EastBay -> Mullet_EastBay, 1, z12
+
+Menhaden_TrinityBay -> Menhaden_TrinityBay, 1, z13
+Menhaden_GalvestonBay -> Menhaden_GalvestonBay, 1, z14
+Menhaden_WestBay -> Menhaden_WestBay, 1, z15
+Menhaden_EastBay -> Menhaden_EastBay, 1, z16
 "
 
 # Fit the Full Bottom-Up Model for Galveston Bay
@@ -2249,6 +2259,16 @@ AlligatorGar_TrinityBay -> AlligatorGar_TrinityBay, 1, l29
 AlligatorGar_GalvestonBay -> AlligatorGar_GalvestonBay, 1, l30
 AlligatorGar_WestBay -> AlligatorGar_WestBay, 1, l31
 AlligatorGar_EastBay -> AlligatorGar_EastBay, 1, l32
+
+Mullet_TrinityBay -> Mullet_TrinityBay, 1, z9
+Mullet_GalvestonBay -> Mullet_GalvestonBay, 1, z10
+Mullet_WestBay -> Mullet_WestBay, 1, z11
+Mullet_EastBay -> Mullet_EastBay, 1, z12
+
+Menhaden_TrinityBay -> Menhaden_TrinityBay, 1, z13
+Menhaden_GalvestonBay -> Menhaden_GalvestonBay, 1, z14
+Menhaden_WestBay -> Menhaden_WestBay, 1, z15
+Menhaden_EastBay -> Menhaden_EastBay, 1, z16
 "
 
 # Fit the No trophics SEM model
@@ -2378,6 +2398,15 @@ AlligatorGar_GalvestonBay -> AlligatorGar_GalvestonBay, 1, l30
 AlligatorGar_WestBay -> AlligatorGar_WestBay, 1, l31
 AlligatorGar_EastBay -> AlligatorGar_EastBay, 1, l32
 
+Mullet_TrinityBay -> Mullet_TrinityBay, 1, z9
+Mullet_GalvestonBay -> Mullet_GalvestonBay, 1, z10
+Mullet_WestBay -> Mullet_WestBay, 1, z11
+Mullet_EastBay -> Mullet_EastBay, 1, z12
+
+Menhaden_TrinityBay -> Menhaden_TrinityBay, 1, z13
+Menhaden_GalvestonBay -> Menhaden_GalvestonBay, 1, z14
+Menhaden_WestBay -> Menhaden_WestBay, 1, z15
+Menhaden_EastBay -> Menhaden_EastBay, 1, z16
 "
 
 # Fit the model for prey prediction in Galveston Bay
@@ -2510,12 +2539,13 @@ AIC(fit_semGB_Pred_abiotic)
 AIC(fit_semGB_Pred_notrophics)
 AIC(fit_semGB_Pred_topdown_noDD)
 AIC(fit_semGB_Pred_bottomupnoDD)
-AIC(fit_semGB_Pred_fulltopdown) #WINNER
-AIC(fit_semGB_Pred_fullbottomup)
+AIC(fit_semGB_Pred_fulltopdown) 
+AIC(fit_semGB_Pred_fullbottomup) #WINNER
 
 
-# The full top-down models are the winners for both bays for the Keystone Predator System
-# The full bottom-up model is the winner for Galveston Bay for the sciaenid system. 
-# And the no-trophic relationship model is the winner for Aransas Bay for the sciaenid system. 
+# The full top-down model is the winner for Aransas Bay for the Keystone Predator System
+# The full bottom-up model is the winner for Galveston Bay for the Keystone Predator System
+# The full bottom-up model is the winner for Galveston Bay for the sciaenid system
+# And the no-trophic relationship model is the winner for Aransas Bay for the sciaenid system 
 
 

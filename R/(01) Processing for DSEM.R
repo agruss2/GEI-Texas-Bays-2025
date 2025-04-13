@@ -12,6 +12,9 @@ library(readxl)
 library(httr)
 library(jsonlite)
 library(git2r)
+library(tidyverse)
+library(patchwork)
+library(cowplot)
 
 
 # Get all files from github
@@ -645,4 +648,120 @@ ABMAP <- ABMAP +
 combined_map <- grid.arrange(ABMAP, GBMAP, ncol = 1, nrow = 2)
 ggsave("combined_map.png", combined_map, width = 6, height = 9, dpi = 200)
 
+
+#### make time series plots of raw annual values for each species, trophic system and bay
+
+
+# Reusable function for plotting
+plot_species_timeseries <- function(df_wide, bay_colors, y_labels) {
+  
+  # Make sure YEAR is numeric
+  df_wide <- df_wide %>%
+    mutate(YEAR = as.numeric(YEAR))
+  
+  # Long format
+  long_df <- df_wide %>%
+    pivot_longer(cols = -YEAR, names_to = "variable", values_to = "value") %>%
+    separate(variable, into = c("species", "bay"), sep = "_")
+  
+  # Drop rows where species isn't in y_labels
+  long_df <- long_df %>%
+    filter(species %in% names(y_labels))
+  
+  # Order species based on y_labels order
+  long_df <- long_df %>%
+    mutate(species = factor(species, levels = names(y_labels)))
+  
+  # Custom theme
+  custom_theme <- theme_bw() +
+    theme(
+      legend.position = "none",
+      axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1, size = 12),
+      axis.text.y = element_text(size = 12),
+      axis.title.y = element_text(size = 16),
+      axis.title.x = element_text(size = 14),
+      plot.title = element_blank()
+    )
+  
+  # Create plots
+  species_plots <- map(levels(long_df$species), function(sp) {
+    df_sp <- filter(long_df, species == sp)
+    
+    ggplot(df_sp, aes(x = YEAR, y = value, color = bay)) +
+      geom_line(size = 1.5) +
+      scale_color_manual(values = bay_colors) +
+      labs(
+        y = y_labels[[sp]],
+        x = "Year"
+      ) +
+      custom_theme
+  })
+  
+  # Create large legend
+  legend_plot <- ggplot(long_df, aes(x = YEAR, y = value, color = bay)) +
+    geom_line(size = 2) +
+    scale_color_manual(values = bay_colors) +
+    labs(color = "Minor Bay") +
+    theme_void() +
+    theme(
+      legend.position = "right",
+      legend.title = element_text(size = 16),
+      legend.text = element_text(size = 14),
+      legend.key.size = unit(1.5, "lines")
+    )
+  
+  legend <- get_legend(legend_plot)
+  
+  # Combine plots + legend in 3x2 grid
+  final_plot <- (
+    species_plots[[1]] + species_plots[[2]] + species_plots[[3]] +
+      species_plots[[4]] + species_plots[[5]] + wrap_elements(legend)
+  ) +
+    plot_layout(ncol = 3)
+  
+  return(final_plot)
+}
+
+# ---- Aransas Sciaenid ----
+aransas_colors <- c(
+  "CopanoBay" = "#264653",
+  "AransasBay" = "#2a9d8f",
+  "MesquiteBay" = "#90a955"
+)
+
+galveston_colors <- c(
+  "GalvestonBay" = "#e9c46a",
+  "TrinityBay" = "#f4a261",
+  "EastBay" = "peachpuff3",
+  "WestBay" = "#f28482"
+)
+
+sciaenid_labels <- c(
+  BlueCrabSmall = "Blue Crab Small CPUE",
+  Atlanticcroaker = "Atlantic Croaker CPUE",
+  Salinity = "Salinity (ppt)",
+  RedDrum = "Red Drum CPUE",
+  SpottedSeatrout = "Spotted Seatrout CPUE"
+)
+
+pred_labels <- c(
+  Mullet = "Mullet CPUE",
+  Menhaden = "Menhaden CPUE",
+  Salinity = "Salinity (ppt)",
+  BullShark = "Bull Shark CPUE",
+  AlligatorGar = "Alligator Gar CPUE"
+)
+
+pred_labels_AB <- c(
+  AllMullet = "Mullet CPUE",
+  AllMenhaden = "Menhaden CPUE",
+  Salinity = "Salinity (ppt)",
+  BullShark = "Bull Shark CPUE",
+  AlligatorGar = "Alligator Gar CPUE"
+)
+
+plot_species_timeseries(AransasBay_Sciaenid_Wide, aransas_colors, sciaenid_labels)
+plot_species_timeseries(AransasBay_Pred_Wide, aransas_colors, pred_labels_AB)
+plot_species_timeseries(GalvestonBay_Sciaenid_Wide, galveston_colors, sciaenid_labels)
+plot_species_timeseries(GalvestonBay_Pred_Wide, galveston_colors, pred_labels)
 

@@ -203,8 +203,8 @@ dev.off()
 #### GB keystone
 
 
-coef_matrix_GB_Pred_NoLag <- get_part_Pred(as_fitted_DAG(fit_semGB_Pred_fulltopdown, lag=0))$coef
-coef_matrix_GB_Pred_YesLag <- get_part_Pred(as_fitted_DAG(fit_semGB_Pred_fulltopdown, lag=1))$coef
+coef_matrix_GB_Pred_NoLag <- get_part_Pred(as_fitted_DAG(fit_semGB_Pred_fullbottomup, lag=0))$coef
+coef_matrix_GB_Pred_YesLag <- get_part_Pred(as_fitted_DAG(fit_semGB_Pred_fullbottomup, lag=1))$coef
 
 df_Pred<- data.frame(Salinity = numeric(),
                      AlligatorGar = numeric(),
@@ -217,4 +217,105 @@ df_Pred<- data.frame(Salinity = numeric(),
 png("path_diagram_GB_Pred.png", width = 1600, height = 2000, bg = "transparent")
 plot_qgraph_combined_with_lag(df_Pred, coef_matrix_GB_Pred_YesLag, plot_title = "Galveston Bay - Keystone Predator System", bg_color = "white")
 plot_qgraph_combined_without_lag(df_Pred, coef_matrix_GB_Pred_NoLag, plot_title = "Galveston Bay - Keystone Predator System", bg_color = "transparent")
+dev.off()
+
+
+
+
+###### make 'empty' path diagrams as conceptual models 
+
+
+
+# duplicate  original sciaenid matrix and  fill in with dummy values
+coef_matrix_dummy_Sciaenid <- matrix(1, 
+                                     nrow = nrow(coef_matrix_AB_Sciaenid_NoLag), 
+                                     ncol = ncol(coef_matrix_AB_Sciaenid_NoLag), 
+                                     dimnames = dimnames(coef_matrix_AB_Sciaenid_NoLag))
+coef_matrix_dummy_Pred <- matrix(1, 
+                                 nrow = nrow(coef_matrix_AB_Pred_NoLag), 
+                                 ncol = ncol(coef_matrix_AB_Pred_NoLag), 
+                                 dimnames = dimnames(coef_matrix_AB_Pred_NoLag))
+
+
+# define custom layout with (x, y) coordinates for path diagrams
+custom_layout <- matrix(c(
+  -1,  1.9, # salinity
+  1,  1,  # spottedseatrout
+  -1,  1.1,   # PDSI
+  0, 1.7,   # croaker
+  1,  2,   # drum 
+  0, 1.3    # blue crab
+), ncol = 2, byrow = TRUE)
+
+# function to make conceptual path diagram
+plot_qgraph_panel_conceptual <- function(data_ts, coef_matrix, plot_title = "Fitted DSEM Path Diagram") {
+  abbrev_names <- colnames(data_ts)
+  if (is.null(abbrev_names)) {
+    stop("The time series object does not have column names.")
+  }
+  par(mar = c(25, 25, 25, 25))  
+  num_vars <- ncol(coef_matrix)
+  edge_curvature <- matrix(0.8, nrow = num_vars, ncol = num_vars) 
+  edge_colors <- matrix("black", nrow = num_vars, ncol = num_vars) 
+  qgraph(coef_matrix,         
+         layout = custom_layout,     
+         edge.labels = FALSE,              
+         posCol = "black",                 
+         negCol = "black",                 
+         labels = abbrev_names,            
+         title = plot_title,              
+         title.cex = 2,                  
+         label.cex = 1,                 
+         vsize = 10,
+         asize = 3,
+         edge.label.position = 0.55,
+         edge.label.bg = "white",
+         label.scale = FALSE,
+         shape = "ellipse",                
+         directed = TRUE,  
+         arrows = TRUE,   
+         edge.color = edge_colors, 
+         edge.width = 2.5,  
+         curve = edge_curvature)
+}
+
+# replacing some 1s with 0s to 'remove' non modeled relationships 
+coef_matrix_dummy_Sciaenid["Salinity", "PDSI"] <- 0
+coef_matrix_dummy_Sciaenid["SpottedSeatrout", "PDSI"] <- 0
+coef_matrix_dummy_Sciaenid["RedDrum", "PDSI"] <- 0
+coef_matrix_dummy_Sciaenid["BlueCrabSmall", "PDSI"] <- 0
+coef_matrix_dummy_Sciaenid["Atlanticcroaker", "PDSI"] <- 0
+coef_matrix_dummy_Sciaenid["SpottedSeatrout", "Salinity"] <- 0
+coef_matrix_dummy_Sciaenid["RedDrum", "Salinity"] <- 0
+coef_matrix_dummy_Sciaenid["BlueCrabSmall", "Salinity"] <- 0
+coef_matrix_dummy_Sciaenid["Atlanticcroaker", "Salinity"] <- 0
+coef_matrix_dummy_Sciaenid["SpottedSeatrout", "RedDrum"] <- 0
+coef_matrix_dummy_Sciaenid["RedDrum", "SpottedSeatrout"] <- 0
+coef_matrix_dummy_Sciaenid["BlueCrabSmall", "Atlanticcroaker"] <- 0
+coef_matrix_dummy_Sciaenid["Atlanticcroaker", "BlueCrabSmall"] <- 0
+
+coef_matrix_dummy_Pred["Salinity", "PDSI"] <- 0
+coef_matrix_dummy_Pred["BullShark", "PDSI"] <- 0
+coef_matrix_dummy_Pred["AlligatorGar", "PDSI"] <- 0
+coef_matrix_dummy_Pred["Mullet", "PDSI"] <- 0
+coef_matrix_dummy_Pred["Menhaden", "PDSI"] <- 0
+coef_matrix_dummy_Pred["BullShark", "Salinity"] <- 0
+coef_matrix_dummy_Pred["AlligatorGar", "Salinity"] <- 0
+coef_matrix_dummy_Pred["Mullet", "Salinity"] <- 0
+coef_matrix_dummy_Pred["Menhaden", "Salinity"] <- 0
+coef_matrix_dummy_Pred["BullShark", "AlligatorGar"] <- 0
+coef_matrix_dummy_Pred["AlligatorGar", "BullShark"] <- 0
+coef_matrix_dummy_Pred["Mullet", "Menhaden"] <- 0
+coef_matrix_dummy_Pred["Menhaden", "Mullet"] <- 0
+
+
+# make and save plots
+png("~/Desktop/SciaenidSystem.png", width = 1400, height = 2000, res = 200)
+par(mfrow = c(1, 1))
+plot_qgraph_panel_conceptual(df_Sciaenid, coef_matrix_dummy_Sciaenid, plot_title = "Sciaenid System")
+dev.off()
+
+png("~/Desktop/KeystoneSystem.png", width = 1400, height = 2000, res = 200)
+par(mfrow = c(1, 1))
+plot_qgraph_panel_conceptual(df_Pred, coef_matrix_dummy_Pred, plot_title = "Keystone Predator System")
 dev.off()
