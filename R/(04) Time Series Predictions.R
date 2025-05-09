@@ -170,7 +170,7 @@ results <- cross_validation_ts(
 )
 print(results_semAB_Sciaenid)
 
-# inspect residuals
+# inspect residuals for each of four final models
 samples <- loo_residuals(fit_semAB_Sciaenid_notrophics,  what="samples", track_progress=FALSE)
 which_use = which(!is.na(AB_Sciaenid_TS))
 fitResp = loo_residuals(fit_semAB_Sciaenid_notrophics, what="loo", track_progress=FALSE)[,'est']
@@ -181,6 +181,35 @@ res = DHARMa::createDHARMa(
   fittedPredictedResponse = fitResp )
 plot(res)
 
+samples <- loo_residuals(fit_semGB_Sciaenid_fullbottomup,  what="samples", track_progress=FALSE)
+which_use = which(!is.na(GB_Sciaenid_TS))
+fitResp = loo_residuals(fit_semGB_Sciaenid_fullbottomup, what="loo", track_progress=FALSE)[,'est']
+simResp = apply(samples, MARGIN=3, FUN=as.vector)[which_use,]
+res = DHARMa::createDHARMa(
+  simulatedResponse = simResp,
+  observedResponse = unlist(GB_Sciaenid_TS)[which_use],
+  fittedPredictedResponse = fitResp )
+plot(res)
+
+samples <- loo_residuals(fit_semGB_Pred_fullbottomup,  what="samples", track_progress=FALSE)
+  which_use = which(!is.na(GB_Pred_TS))
+  fitResp = loo_residuals(fit_semGB_Pred_fullbottomup, what="loo", track_progress=FALSE)[,'est']
+  simResp = apply(samples, MARGIN=3, FUN=as.vector)[which_use,]
+  res = DHARMa::createDHARMa(
+  simulatedResponse = simResp,
+  observedResponse = unlist(GB_Pred_TS)[which_use],
+  fittedPredictedResponse = fitResp )
+  plot(res)
+  
+samples <- loo_residuals(fit_semAB_Pred_fulltopdown,  what="samples", track_progress=FALSE)
+which_use = which(!is.na(AB_Pred_TS))
+fitResp = loo_residuals(fit_semAB_Pred_fulltopdown, what="loo", track_progress=FALSE)[,'est']
+simResp = apply(samples, MARGIN=3, FUN=as.vector)[which_use,]
+res = DHARMa::createDHARMa(
+  simulatedResponse = simResp,
+  observedResponse = unlist(AB_Pred_TS)[which_use],
+  fittedPredictedResponse = fitResp )
+plot(res)
 
 # calculcate adjusted R2 values
 results_semAB_Pred <- as.data.frame(results_semAB_Pred)
@@ -351,6 +380,7 @@ plot_observed_vs_predicted <- function(df, response_var, yaxis_title, plot_title
 plot_observed_vs_predicted_no_xtext <- function(df, response_var, yaxis_title, plot_title, predictions_color, results_df) {
   p <- plot_observed_vs_predicted(df, response_var, yaxis_title, plot_title, predictions_color, results_df) +
     theme(
+      axis.title.x = element_blank(),
       axis.text.x = element_blank(),  
     )
   return(p)
@@ -361,35 +391,35 @@ plot_observed_vs_predicted_no_xtext <- function(df, response_var, yaxis_title, p
 
 
 #AB PREDATORS
-AlligatorGar_CopanoBay <- plot_observed_vs_predicted(
+AlligatorGar_CopanoBay <- plot_observed_vs_predicted_no_xtext(
   df = loodf_AB_Pred, response_var = "AlligatorGar_CopanoBay",
   yaxis_title = NA, plot_title = NA,
-  predictions_color = "#f28482", results_df = results_semAB_Pred)
+  predictions_color = "#2a9d8f", results_df = results_semAB_Pred)
 
 AlligatorGar_AransasBay <- plot_observed_vs_predicted_no_xtext(
   df = loodf_AB_Pred, response_var = "AlligatorGar_AransasBay",
-  predictions_color = "#f28482",yaxis_title = "Alligator Gar CPUE",
+  predictions_color = "#2a9d8f",yaxis_title = "Alligator Gar CPUE",
   plot_title = NA, results_df = results_semAB_Pred)
 
 AlligatorGar_MesquiteBay <- plot_observed_vs_predicted_no_xtext(
   df = loodf_AB_Pred, response_var = "AlligatorGar_MesquiteBay",
-  predictions_color = "#f28482", yaxis_title = NA,
+  predictions_color = "#2a9d8f", yaxis_title = NA,
   plot_title = NA, results_df = results_semAB_Pred)
 
-BullShark_CopanoBay <-plot_observed_vs_predicted(
+BullShark_CopanoBay <- plot_observed_vs_predicted_no_xtext(
   df = loodf_AB_Pred, response_var = "BullShark_CopanoBay",
-  predictions_color = "#f28482", yaxis_title = NA,
-  plot_title = NA, results_df = results_semAB_Pred)
+  predictions_color = "#2a9d8f", yaxis_title = NA,
+  plot_title = "Copano Bay",results_df = results_semAB_Pred)
 
-BullShark_AransasBay <- plot_observed_vs_predicted(
+BullShark_AransasBay <- plot_observed_vs_predicted_no_xtext(
   df = loodf_AB_Pred, response_var = "BullShark_AransasBay",
-  predictions_color = "#f28482", yaxis_title = "Bull Shark CPUE",
-  plot_title = NA, results_df = results_semAB_Pred)
+  predictions_color = "#2a9d8f", yaxis_title = "Bull Shark CPUE",
+  plot_title = "Aransas Bay",results_df = results_semAB_Pred)
 
-BullShark_MesquiteBay <- plot_observed_vs_predicted(
+BullShark_MesquiteBay <- plot_observed_vs_predicted_no_xtext(
   df = loodf_AB_Pred, response_var = "BullShark_MesquiteBay",
-  predictions_color = "#f28482",yaxis_title = NA,
-  plot_title = NA,results_df = results_semAB_Pred)
+  predictions_color = "#2a9d8f",yaxis_title = NA,
+  plot_title = "Mesquite Bay",results_df = results_semAB_Pred)
 
 Mullet_CopanoBay <- plot_observed_vs_predicted_no_xtext(
   df = loodf_AB_Pred, response_var = "AllMullet_CopanoBay",
@@ -421,21 +451,9 @@ Menhaden_MesquiteBay <- plot_observed_vs_predicted_no_xtext(
   predictions_color = "#2a9d8f", yaxis_title = NA,
   plot_title = NA, results_df = results_semAB_Pred)
 
-ABpredictions_predators <- grid.arrange(
-  Mullet_AransasBay, Mullet_CopanoBay, Mullet_MesquiteBay,
-  Menhaden_AransasBay, Menhaden_CopanoBay, Menhaden_MesquiteBay,
-  AlligatorGar_AransasBay, AlligatorGar_CopanoBay, AlligatorGar_MesquiteBay,
-  BullShark_AransasBay, BullShark_CopanoBay, BullShark_MesquiteBay,
-  ncol = 3, nrow = 4
-)
-
-ggsave("ABpredictions_predators.png", ABpredictions_predators, dpi = 150, bg = "white",
-       width = 3200,
-       height = 2000,
-       units = "px") 
 
 #GB PREDATORS
-AlligatorGar_GalvestonBay <- plot_observed_vs_predicted(
+AlligatorGar_GalvestonBay <- plot_observed_vs_predicted_no_xtext(
   df = loodf_GB_Pred, response_var = "AlligatorGar_GalvestonBay",
   yaxis_title = NA, plot_title = NA,
   predictions_color = "#f28482", results_df = results_semGB_Pred)
@@ -445,7 +463,7 @@ AlligatorGar_TrinityBay <- plot_observed_vs_predicted_no_xtext(
   predictions_color = "#f28482", yaxis_title = "Alligator Gar CPUE",
   plot_title = NA, results_df = results_semGB_Pred)
 
-AlligatorGar_WestBay <- plot_observed_vs_predicted_no_xtext(
+AlligatorGar_WestBay <-plot_observed_vs_predicted_no_xtext(
   df = loodf_GB_Pred, response_var = "AlligatorGar_WestBay",
   predictions_color = "#f28482", yaxis_title = NA,
   plot_title = NA, results_df = results_semGB_Pred)
@@ -455,79 +473,69 @@ AlligatorGar_EastBay <- plot_observed_vs_predicted_no_xtext(
   predictions_color = "#f28482", yaxis_title = NA,
   plot_title = NA, results_df = results_semGB_Pred)
 
-BullShark_GalvestonBay <- plot_observed_vs_predicted(
+BullShark_GalvestonBay <- plot_observed_vs_predicted_no_xtext(
   df = loodf_GB_Pred, response_var = "BullShark_GalvestonBay",
   predictions_color = "#f28482", yaxis_title = NA,
-  plot_title = NA, results_df = results_semGB_Pred)
+  plot_title = "Galveston Bay", results_df = results_semGB_Pred)
 
-BullShark_TrinityBay <- plot_observed_vs_predicted(
+BullShark_TrinityBay <- plot_observed_vs_predicted_no_xtext(
   df = loodf_GB_Pred, response_var = "BullShark_TrinityBay",
   predictions_color = "#f28482", yaxis_title = "Bull Shark CPUE",
-  plot_title = NA, results_df = results_semGB_Pred)
+  plot_title = "Trinity Bay", results_df = results_semGB_Pred)
 
-BullShark_WestBay <- plot_observed_vs_predicted(
+BullShark_WestBay <- plot_observed_vs_predicted_no_xtext(
   df = loodf_GB_Pred, response_var = "BullShark_WestBay",
   predictions_color = "#f28482", yaxis_title = NA,
-  plot_title = NA, results_df = results_semGB_Pred)
+  plot_title = "West Bay", results_df = results_semGB_Pred)
 
-BullShark_EastBay <- plot_observed_vs_predicted(
+BullShark_EastBay <- plot_observed_vs_predicted_no_xtext(
   df = loodf_GB_Pred, response_var = "BullShark_EastBay",
   predictions_color = "#f28482", yaxis_title = NA,
-  plot_title = NA, results_df = results_semGB_Pred)
+  plot_title = "East Bay", results_df = results_semGB_Pred)
 
 Mullet_GalvestonBay <- plot_observed_vs_predicted_no_xtext(
   df = loodf_GB_Pred, response_var = "Mullet_GalvestonBay",
-  predictions_color = "#2a9d8f", yaxis_title = NA,
+  predictions_color = "#f28482", yaxis_title = NA,
   plot_title = "Galveston Bay", results_df = results_semGB_Pred)
 
 Mullet_TrinityBay <- plot_observed_vs_predicted_no_xtext(
   df = loodf_GB_Pred, response_var = "Mullet_TrinityBay",
-  predictions_color = "#2a9d8f", yaxis_title = "Mullet CPUE",
+  predictions_color = "#f28482", yaxis_title = "Mullet CPUE",
   plot_title = "Trinity Bay", results_df = results_semGB_Pred)
 
 Mullet_WestBay <- plot_observed_vs_predicted_no_xtext(
   df = loodf_GB_Pred, response_var = "Mullet_WestBay",
-  predictions_color = "#2a9d8f", yaxis_title = NA,
+  predictions_color = "#f28482", yaxis_title = NA,
   plot_title = "West Bay", results_df = results_semGB_Pred)
 
 Mullet_EastBay <- plot_observed_vs_predicted_no_xtext(
   df = loodf_GB_Pred, response_var = "Mullet_EastBay",
-  predictions_color = "#2a9d8f", yaxis_title = NA,
+  predictions_color = "#f28482", yaxis_title = NA,
   plot_title = "East Bay", results_df = results_semGB_Pred)
 
 Menhaden_GalvestonBay <- plot_observed_vs_predicted_no_xtext(
   df = loodf_GB_Pred, response_var = "Menhaden_GalvestonBay",
-  predictions_color = "#2a9d8f", yaxis_title = NA,
+  predictions_color = "#f28482", yaxis_title = NA,
   plot_title = NA, results_df = results_semGB_Pred)
 
 Menhaden_TrinityBay <- plot_observed_vs_predicted_no_xtext(
   df = loodf_GB_Pred, response_var = "Menhaden_TrinityBay",
-  predictions_color = "#2a9d8f", yaxis_title = "Menhaden CPUE",
+  predictions_color = "#f28482", yaxis_title = "Menhaden CPUE",
   plot_title = NA, results_df = results_semGB_Pred)
 
 Menhaden_WestBay <- plot_observed_vs_predicted_no_xtext(
   df = loodf_GB_Pred, response_var = "Menhaden_WestBay",
-  predictions_color = "#2a9d8f", yaxis_title = NA,
+  predictions_color = "#f28482", yaxis_title = NA,
   plot_title = NA, results_df = results_semGB_Pred)
 
 Menhaden_EastBay <- plot_observed_vs_predicted_no_xtext(
   df = loodf_GB_Pred, response_var = "Menhaden_EastBay",
-  predictions_color = "#2a9d8f", yaxis_title = NA,
+  predictions_color = "#f28482", yaxis_title = NA,
   plot_title = NA, results_df = results_semGB_Pred)
 
-GBpredictions_predators <- grid.arrange(Mullet_TrinityBay,
-                                        Mullet_GalvestonBay, Mullet_WestBay, Mullet_EastBay ,Menhaden_TrinityBay,
-                                        Menhaden_GalvestonBay, Menhaden_WestBay, Menhaden_EastBay, AlligatorGar_TrinityBay,
-                                        AlligatorGar_GalvestonBay, AlligatorGar_WestBay, AlligatorGar_EastBay,BullShark_TrinityBay,
-                                        BullShark_GalvestonBay, BullShark_WestBay, BullShark_EastBay,ncol = 4, nrow = 4)
-
-ggsave("GBpredictions_predators.png", GBpredictions_predators, dpi = 150, bg = "white",
-       width = 3200,
-       height = 2000,
-       units = "px") 
 
 ##GB SCIAENID
-RedDrum_GalvestonBay <- plot_observed_vs_predicted(
+RedDrum_GalvestonBay <- plot_observed_vs_predicted_no_xtext(
   df = loodf_GB_Sciaenid, response_var = "RedDrum_GalvestonBay",
   yaxis_title = NA, plot_title = NA,
   predictions_color = "#f28482", results_df = results_semGB_Sciaenid)
@@ -569,85 +577,73 @@ SpottedSeatrout_EastBay <- plot_observed_vs_predicted(
 
 BlueCrabSmall_GalvestonBay <- plot_observed_vs_predicted_no_xtext(
   df = loodf_GB_Sciaenid, response_var = "BlueCrabSmall_GalvestonBay",
-  predictions_color = "#2a9d8f", yaxis_title = NA,
+  predictions_color = "#f28482", yaxis_title = NA,
   plot_title = "Galveston Bay", results_df = results_semGB_Sciaenid)
 
 BlueCrabSmall_TrinityBay <- plot_observed_vs_predicted_no_xtext(
   df = loodf_GB_Sciaenid, response_var = "BlueCrabSmall_TrinityBay",
-  predictions_color = "#2a9d8f", yaxis_title = "Blue Crab CPUE",
+  predictions_color = "#f28482", yaxis_title = "Blue Crab CPUE",
   plot_title = "Trinity Bay", results_df = results_semGB_Sciaenid)
 
 BlueCrabSmall_WestBay <- plot_observed_vs_predicted_no_xtext(
   df = loodf_GB_Sciaenid, response_var = "BlueCrabSmall_WestBay",
-  predictions_color = "#2a9d8f", yaxis_title = NA,
+  predictions_color = "#f28482", yaxis_title = NA,
   plot_title = "West Bay", results_df = results_semGB_Sciaenid)
 
 BlueCrabSmall_EastBay <- plot_observed_vs_predicted_no_xtext(
   df = loodf_GB_Sciaenid, response_var = "BlueCrabSmall_EastBay",
-  predictions_color = "#2a9d8f", yaxis_title = NA,
+  predictions_color = "#f28482", yaxis_title = NA,
   plot_title = "East Bay", results_df = results_semGB_Sciaenid)
 
 Atlanticcroaker_GalvestonBay <- plot_observed_vs_predicted_no_xtext(
   df = loodf_GB_Sciaenid, response_var = "Atlanticcroaker_GalvestonBay",
-  predictions_color = "#2a9d8f", yaxis_title = NA,
+  predictions_color = "#f28482", yaxis_title = NA,
   plot_title = NA, results_df = results_semGB_Sciaenid)
 
 Atlanticcroaker_TrinityBay <- plot_observed_vs_predicted_no_xtext(
   df = loodf_GB_Sciaenid, response_var = "Atlanticcroaker_TrinityBay",
-  predictions_color = "#2a9d8f", yaxis_title = "Atlantic Croaker CPUE",
+  predictions_color = "#f28482", yaxis_title = "Atlantic Croaker CPUE",
   plot_title = NA, results_df = results_semGB_Sciaenid)
 
 Atlanticcroaker_WestBay <- plot_observed_vs_predicted_no_xtext(
   df = loodf_GB_Sciaenid, response_var = "Atlanticcroaker_WestBay",
-  predictions_color = "#2a9d8f", yaxis_title = NA,
+  predictions_color = "#f28482", yaxis_title = NA,
   plot_title = NA, results_df = results_semGB_Sciaenid)
 
 Atlanticcroaker_EastBay <- plot_observed_vs_predicted_no_xtext(
   df = loodf_GB_Sciaenid, response_var = "Atlanticcroaker_EastBay",
-  predictions_color = "#2a9d8f", yaxis_title = NA,
+  predictions_color = "#f28482", yaxis_title = NA,
   plot_title = NA, results_df = results_semGB_Sciaenid)
 
-GBpredictions_Sciaenid <- grid.arrange(BlueCrabSmall_TrinityBay,
-                                       BlueCrabSmall_GalvestonBay, BlueCrabSmall_WestBay, BlueCrabSmall_EastBay,Atlanticcroaker_TrinityBay,
-                                       Atlanticcroaker_GalvestonBay, Atlanticcroaker_WestBay, Atlanticcroaker_EastBay,RedDrum_TrinityBay, 
-                                       RedDrum_GalvestonBay,RedDrum_WestBay, RedDrum_EastBay,SpottedSeatrout_TrinityBay,
-                                       SpottedSeatrout_GalvestonBay, SpottedSeatrout_WestBay, SpottedSeatrout_EastBay,
-                                       ncol = 4, nrow = 4)
-
-ggsave("GBpredictions_Sciaenid.png", GBpredictions_Sciaenid, dpi = 150, bg = "white",
-       width = 3200,
-       height = 2000,
-       units = "px")
-
 ##AB SCIAENID
-RedDrum_CopanoBay <- plot_observed_vs_predicted(
+RedDrum_CopanoBay <- plot_observed_vs_predicted_no_xtext(
   df = loodf_AB_Sciaenid, response_var = "RedDrum_CopanoBay",
   yaxis_title = NA, plot_title = NA,
-  predictions_color = "#f28482", results_df = results_semAB_Sciaenid)
+  predictions_color = "#2a9d8f", results_df = results_semAB_Sciaenid)
 
 RedDrum_AransasBay <- plot_observed_vs_predicted_no_xtext(
   df = loodf_AB_Sciaenid, response_var = "RedDrum_AransasBay",
-  predictions_color = "#f28482", yaxis_title = "Red Drum CPUE",
+  predictions_color = "#2a9d8f", yaxis_title = "Red Drum CPUE",
   plot_title = NA, results_df = results_semAB_Sciaenid)
 
 RedDrum_MesquiteBay <- plot_observed_vs_predicted_no_xtext(
   df = loodf_AB_Sciaenid, response_var = "RedDrum_MesquiteBay",
-  predictions_color = "#f28482", yaxis_title = NA,
+  predictions_color = "#2a9d8f", yaxis_title = NA,
   plot_title = NA, results_df = results_semAB_Sciaenid)
 
 SpottedSeatrout_CopanoBay <- plot_observed_vs_predicted(
   df = loodf_AB_Sciaenid, response_var = "SpottedSeatrout_CopanoBay",
-  predictions_color = "#f28482", yaxis_title = NA,
+  predictions_color = "#2a9d8f", yaxis_title = NA,
   plot_title = NA, results_df = results_semAB_Sciaenid)
 
 SpottedSeatrout_AransasBay <- plot_observed_vs_predicted(
   df = loodf_AB_Sciaenid, response_var = "SpottedSeatrout_AransasBay",
-  predictions_color = "#f28482", yaxis_title = "Spotted Seatrout CPUE",
+  predictions_color = "#2a9d8f", yaxis_title = "Spotted Seatrout CPUE",
   plot_title = NA, results_df = results_semAB_Sciaenid)
 
 SpottedSeatrout_MesquiteBay <- plot_observed_vs_predicted(
   df = loodf_AB_Sciaenid, response_var = "SpottedSeatrout_MesquiteBay",
-  predictions_color = "#f28482", yaxis_title = NA,
+  predictions_color = "#2a9d8f", yaxis_title = NA,
   plot_title = NA, results_df = results_semAB_Sciaenid)
 
 BlueCrabSmall_CopanoBay <- plot_observed_vs_predicted_no_xtext(
@@ -680,15 +676,26 @@ Atlanticcroaker_MesquiteBay <- plot_observed_vs_predicted_no_xtext(
   predictions_color = "#2a9d8f", yaxis_title = NA,
   plot_title = NA, results_df = results_semAB_Sciaenid)
 
-ABpredictions_Sciaenid <- grid.arrange(
-  BlueCrabSmall_AransasBay, BlueCrabSmall_CopanoBay, BlueCrabSmall_MesquiteBay,
-  Atlanticcroaker_AransasBay, Atlanticcroaker_CopanoBay, Atlanticcroaker_MesquiteBay,
-  RedDrum_AransasBay, RedDrum_CopanoBay, RedDrum_MesquiteBay,
-  SpottedSeatrout_AransasBay, SpottedSeatrout_CopanoBay, SpottedSeatrout_MesquiteBay,
-  ncol = 3, nrow = 4
-)
+GBpredictions_predators <- grid.arrange(BullShark_TrinityBay,
+                                        BullShark_GalvestonBay, BullShark_WestBay, BullShark_EastBay, AlligatorGar_TrinityBay,
+                                        AlligatorGar_GalvestonBay, AlligatorGar_WestBay, AlligatorGar_EastBay,RedDrum_TrinityBay, 
+                                        RedDrum_GalvestonBay,RedDrum_WestBay, RedDrum_EastBay,SpottedSeatrout_TrinityBay,
+                                        SpottedSeatrout_GalvestonBay, SpottedSeatrout_WestBay, SpottedSeatrout_EastBay,
+                                        ncol = 4, nrow = 4)
 
-ggsave("ABpredictions_Sciaenid.png", ABpredictions_Sciaenid, dpi = 150, bg = "white",
+ggsave("GBpredictions_predators.png", GBpredictions_predators, dpi = 150, bg = "white",
+       width = 3200,
+       height = 2000,
+       units = "px")
+
+ABpredictions_predators  <- grid.arrange(
+                          BullShark_AransasBay, BullShark_CopanoBay, BullShark_MesquiteBay,
+                          AlligatorGar_AransasBay, AlligatorGar_CopanoBay, AlligatorGar_MesquiteBay,
+                          RedDrum_AransasBay, RedDrum_CopanoBay, RedDrum_MesquiteBay,
+                          SpottedSeatrout_AransasBay, SpottedSeatrout_CopanoBay, SpottedSeatrout_MesquiteBay,
+                          ncol = 3, nrow = 4)
+
+ggsave("ABpredictions_predators.png", ABpredictions_predators, dpi = 150, bg = "white",
        width = 3200,
        height = 2000,
        units = "px")
