@@ -17,6 +17,12 @@ library(patchwork)
 library(cowplot)
 
 
+########## Process (get means per space and time, log transform, z score transform, etc) all raw data 
+########## Make basic maps showing spatial dilineations
+########## Make time series plots of raw annual values for each species, trophic system and bay
+
+
+
 # Get all files from github
 repo_api_url <- "https://api.github.com/repos/RayCzajaJr/GEI-Texas-Bays/contents/Input"
 
@@ -649,7 +655,11 @@ combined_map <- grid.arrange(ABMAP, GBMAP, ncol = 1, nrow = 2)
 ggsave("combined_map.png", combined_map, width = 6, height = 9, dpi = 200)
 
 
-#### make time series plots of raw annual values for each species, trophic system and bay
+
+
+####### Make time series plots of raw annual values for each species, trophic system and bay
+
+
 
 
 # Reusable function for plotting

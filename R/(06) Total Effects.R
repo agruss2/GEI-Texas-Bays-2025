@@ -73,6 +73,16 @@ predictor_labels_ABpred <- c(
   "AllMulle" = "Mullet",
   "BullShar" = "Bull Shark")
 
+# turn on to remove prey species
+#totaleffectsABpred_mean <- totaleffectsABpred_mean %>%
+  #filter(!to_variable %in% c("AllMullet", "AllMenhaden"))
+
+# rename two taxa for consitency
+totaleffectsABpred_mean <- totaleffectsABpred_mean %>%
+  mutate(to_variable = recode(to_variable,
+                              "AllMullet" = "Mullet",
+                              "AllMenhaden" = "Menhaden"))
+
 ABpred_totaleffectsplot<-ggplot(totaleffectsABpred_mean, aes(x = to_variable, y = mean_total_effect, fill = from_variable)) +
   geom_errorbar(aes(
     ymin = ifelse(mean_total_effect > 0, mean_total_effect, mean_total_effect - se_total_effect),  
@@ -164,6 +174,10 @@ lag_labels <- c("0" = "No Lag", "1" = "1 Year Lag")
 predictor_labels_ABSciaenid <- c(
   "RedDrum_" = "Red Drum",
   "SpottedS" = "Spotted Seatrout")
+
+# turn on to remove prey species
+#totaleffectsABSciaenid_mean<- totaleffectsABSciaenid_mean%>%
+  #filter(!to_variable %in% c("Atlanticcroaker", "BlueCrabSmall"))
 
 ABSciaenid_totaleffectsplot<-ggplot(totaleffectsABSciaenid_mean, aes(x = to_variable, y = mean_total_effect, fill = from_variable)) +
   geom_errorbar(aes(
@@ -262,6 +276,10 @@ predictor_labels_GBSciaenid <- c(
   "Atlantic" = "Atlantic Croaker",
   "BlueCrab" = "Blue Crab",
   "SpottedS" = "Spotted Seatrout")
+
+# turn on to remove prey species
+#totaleffectsGBSciaenid_mean<- totaleffectsGBSciaenid_mean%>%
+  #filter(!to_variable %in% c("Atlanticcroaker", "BlueCrabSmall"))
 
 GBSciaenid_totaleffectsplot<-ggplot(totaleffectsGBSciaenid_mean, aes(x = to_variable, y = mean_total_effect, fill = from_variable)) +
   geom_errorbar(aes(
@@ -363,6 +381,10 @@ predictor_labels_GBpred <- c(
   "Men" = "Menhaden",
   "Mul" = "Mullet",
   "Bul" = "Bull Shark")
+
+# turn on to remove prey species
+#totaleffectsGBpred_mean <- totaleffectsGBpred_mean %>%
+  #filter(!to_variable %in% c("Mullet", "Menhaden"))
 
 GBpred_totaleffectsplot<-ggplot(totaleffectsGBpred_mean, aes(x = to_variable, y = mean_total_effect, fill = from_variable)) +
   geom_errorbar(aes(

@@ -7,12 +7,14 @@ library(phylopath)
 library(dplyr)
 library(ggdag)
 library(readxl)
+library(writexl)
 library(ggraph)
 library(qgraph)
 library(DHARMa)
 
 
-###################################################################
+########## Make six DSEMS per trophic model and major bay, based on the 6 different scenarios 
+########## Determine the lowest AIC model per trophic model and major bay
 
 
 # First System and Major Bay: Sciaenid Trophic System and Aransas Bay 
@@ -580,7 +582,9 @@ AIC(fit_semAB_Sciaenid_topdown_noDD)
 AIC(fit_semAB_Sciaenid_fullbottomup)
 AIC(fit_semAB_Sciaenid_fulltopdown)
 
-
+# Export model parameters (eg p values) as excel file
+table_semAB_Sciaenid<-summary(fit_semAB_Sciaenid_notrophics)
+write_xlsx(table_semAB_Sciaenid, path = "table_semAB_Sciaenid.xlsx")
 
 
 
@@ -1199,6 +1203,9 @@ AIC(fit_semAB_Pred_bottomupnoDD)
 AIC(fit_semAB_Pred_fulltopdown) #WINNER
 AIC(fit_semAB_Pred_fullbottomup)
 
+# Export model parameters (eg p values) as excel file
+table_semAB_Pred<-summary(fit_semAB_Pred_fulltopdown)
+write_xlsx(table_semAB_Pred, path = "table_semAB_Pred.xlsx")
 
 
 
@@ -1793,7 +1800,9 @@ AIC(fit_semGB_Sciaenid_topdown_noDD)
 AIC(fit_semGB_Sciaenid_fullbottomup) #WINNER
 AIC(fit_semGB_Sciaenid_fulltopdown)
 
-
+# Export model parameters (eg p values) as excel file
+table_semGB_Sciaenid<-summary(fit_semGB_Sciaenid_fullbottomup)
+write_xlsx(table_semGB_Sciaenid, path = "table_semGB_Sciaenid.xlsx")
 
 # Second System and Major Bay: Keystone Predator Trophic System and Galveston Bay
 
@@ -2541,6 +2550,10 @@ AIC(fit_semGB_Pred_topdown_noDD)
 AIC(fit_semGB_Pred_bottomupnoDD)
 AIC(fit_semGB_Pred_fulltopdown) 
 AIC(fit_semGB_Pred_fullbottomup) #WINNER
+
+# Export model parameters (eg p values) as excel file
+table_semGB_Pred<-summary(fit_semGB_Pred_fullbottomup)
+write_xlsx(table_semGB_Pred, path = "table_semGB_Pred.xlsx")
 
 
 # The full top-down model is the winner for Aransas Bay for the Keystone Predator System

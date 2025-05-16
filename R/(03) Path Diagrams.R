@@ -10,7 +10,10 @@ library(qgraph)
 library(DHARMa)
 
 
-####### Make custom path diagrams for each trophic model and major bay
+####### Make custom path diagrams for each (lowest AIC) trophic model and major bay 
+####### Make 'empty' path diagrams as conceptual models 
+
+
 
 # Define custom layout with (x, y) coordinates for path diagrams
 custom_layout <- matrix(c(
@@ -143,6 +146,7 @@ plot_qgraph_combined_without_lag <- function(data_ts, coef_matrix_no_lag, plot_t
 
 #### AB Sciaenid 
 
+
 coef_matrix_AB_Sciaenid_NoLag <- get_part_Sciaenid(as_fitted_DAG(fit_semAB_Sciaenid_notrophics, lag=0))$coef
 coef_matrix_AB_Sciaenid_YesLag <- get_part_Sciaenid(as_fitted_DAG(fit_semAB_Sciaenid_notrophics, lag=1))$coef
 
@@ -158,7 +162,6 @@ png("path_diagram_AB_Sci.png", width = 1600, height = 2000, bg = "transparent")
 plot_qgraph_combined_with_lag(df_Sciaenid, coef_matrix_AB_Sciaenid_YesLag, plot_title = "Aransas Bay - Sciaenid System", bg_color = "white")
 plot_qgraph_combined_without_lag(df_Sciaenid, coef_matrix_AB_Sciaenid_NoLag, plot_title = "Aransas Bay - Sciaenid System", bg_color = "transparent")
 dev.off()
-
 
 #### GB Sciaenid 
 

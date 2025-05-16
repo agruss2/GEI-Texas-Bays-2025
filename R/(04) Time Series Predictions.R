@@ -15,9 +15,61 @@ library(DHARMa)
 
 
 
-########## Get predictions for each year, variable, minor bay, trophic system and major bay
+########## Get DHARMA plots and df 
+########## Assess prediction skill (via a custom loo function) for each lowest AIC model
+########## Get predictions for each year, variable, minor bay, trophic system and major bay, with subsequent plots
 
 
+
+# calculcate df for each of four final models
+logLik(fit_semAB_Sciaenid_notrophics)
+logLik(fit_semGB_Sciaenid_fullbottomup)
+logLik(fit_semGB_Pred_fullbottomup)
+logLik(fit_semAB_Pred_fulltopdown)
+
+# inspect residuals/dharma plots for each of four final models
+samples <- loo_residuals(fit_semAB_Sciaenid_notrophics,  what="samples", track_progress=FALSE)
+which_use = which(!is.na(AB_Sciaenid_TS))
+fitResp = loo_residuals(fit_semAB_Sciaenid_notrophics, what="loo", track_progress=FALSE)[,'est']
+simResp = apply(samples, MARGIN=3, FUN=as.vector)[which_use,]
+res = DHARMa::createDHARMa(
+  simulatedResponse = simResp,
+  observedResponse = unlist(AB_Sciaenid_TS)[which_use],
+  fittedPredictedResponse = fitResp )
+plot(res)
+
+samples <- loo_residuals(fit_semGB_Sciaenid_fullbottomup,  what="samples", track_progress=FALSE)
+which_use = which(!is.na(GB_Sciaenid_TS))
+fitResp = loo_residuals(fit_semGB_Sciaenid_fullbottomup, what="loo", track_progress=FALSE)[,'est']
+simResp = apply(samples, MARGIN=3, FUN=as.vector)[which_use,]
+res = DHARMa::createDHARMa(
+  simulatedResponse = simResp,
+  observedResponse = unlist(GB_Sciaenid_TS)[which_use],
+  fittedPredictedResponse = fitResp )
+plot(res)
+
+samples <- loo_residuals(fit_semGB_Pred_fullbottomup,  what="samples", track_progress=FALSE)
+which_use = which(!is.na(GB_Pred_TS))
+fitResp = loo_residuals(fit_semGB_Pred_fullbottomup, what="loo", track_progress=FALSE)[,'est']
+simResp = apply(samples, MARGIN=3, FUN=as.vector)[which_use,]
+res = DHARMa::createDHARMa(
+  simulatedResponse = simResp,
+  observedResponse = unlist(GB_Pred_TS)[which_use],
+  fittedPredictedResponse = fitResp )
+plot(res)
+
+samples <- loo_residuals(fit_semAB_Pred_fulltopdown,  what="samples", track_progress=FALSE)
+which_use = which(!is.na(AB_Pred_TS))
+fitResp = loo_residuals(fit_semAB_Pred_fulltopdown, what="loo", track_progress=FALSE)[,'est']
+simResp = apply(samples, MARGIN=3, FUN=as.vector)[which_use,]
+res = DHARMa::createDHARMa(
+  simulatedResponse = simResp,
+  observedResponse = unlist(AB_Pred_TS)[which_use],
+  fittedPredictedResponse = fitResp )
+plot(res)
+
+
+# custome loo/cv function for assessing prediction skills
 cross_validation_ts <- function(tsdata, sem, fit_function, loo_function, chunk_size = 4, seed = 42, output_df_name = "loodf_cv", results_df_name = "results_semAB_Pred") {
   
   # Set the seed for reproducibility
@@ -170,46 +222,6 @@ results <- cross_validation_ts(
 )
 print(results_semAB_Sciaenid)
 
-# inspect residuals for each of four final models
-samples <- loo_residuals(fit_semAB_Sciaenid_notrophics,  what="samples", track_progress=FALSE)
-which_use = which(!is.na(AB_Sciaenid_TS))
-fitResp = loo_residuals(fit_semAB_Sciaenid_notrophics, what="loo", track_progress=FALSE)[,'est']
-simResp = apply(samples, MARGIN=3, FUN=as.vector)[which_use,]
-res = DHARMa::createDHARMa(
-  simulatedResponse = simResp,
-  observedResponse = unlist(AB_Sciaenid_TS)[which_use],
-  fittedPredictedResponse = fitResp )
-plot(res)
-
-samples <- loo_residuals(fit_semGB_Sciaenid_fullbottomup,  what="samples", track_progress=FALSE)
-which_use = which(!is.na(GB_Sciaenid_TS))
-fitResp = loo_residuals(fit_semGB_Sciaenid_fullbottomup, what="loo", track_progress=FALSE)[,'est']
-simResp = apply(samples, MARGIN=3, FUN=as.vector)[which_use,]
-res = DHARMa::createDHARMa(
-  simulatedResponse = simResp,
-  observedResponse = unlist(GB_Sciaenid_TS)[which_use],
-  fittedPredictedResponse = fitResp )
-plot(res)
-
-samples <- loo_residuals(fit_semGB_Pred_fullbottomup,  what="samples", track_progress=FALSE)
-  which_use = which(!is.na(GB_Pred_TS))
-  fitResp = loo_residuals(fit_semGB_Pred_fullbottomup, what="loo", track_progress=FALSE)[,'est']
-  simResp = apply(samples, MARGIN=3, FUN=as.vector)[which_use,]
-  res = DHARMa::createDHARMa(
-  simulatedResponse = simResp,
-  observedResponse = unlist(GB_Pred_TS)[which_use],
-  fittedPredictedResponse = fitResp )
-  plot(res)
-  
-samples <- loo_residuals(fit_semAB_Pred_fulltopdown,  what="samples", track_progress=FALSE)
-which_use = which(!is.na(AB_Pred_TS))
-fitResp = loo_residuals(fit_semAB_Pred_fulltopdown, what="loo", track_progress=FALSE)[,'est']
-simResp = apply(samples, MARGIN=3, FUN=as.vector)[which_use,]
-res = DHARMa::createDHARMa(
-  simulatedResponse = simResp,
-  observedResponse = unlist(AB_Pred_TS)[which_use],
-  fittedPredictedResponse = fitResp )
-plot(res)
 
 # calculcate adjusted R2 values
 results_semAB_Pred <- as.data.frame(results_semAB_Pred)
@@ -284,7 +296,6 @@ results_semGB_Sciaenid <- calculate_adjusted_r2(results_semGB_Sciaenid, predicto
 results_semGB_Sciaenid <- calculate_adjusted_r2(results_semGB_Sciaenid, predictors_count = 4, observations_count = 39, specific_var2 = "BlueCrabSmall_TrinityBay")
 results_semGB_Sciaenid <- calculate_adjusted_r2(results_semGB_Sciaenid, predictors_count = 4, observations_count = 39, specific_var2 = "BlueCrabSmall_WestBay")
 results_semGB_Sciaenid <- calculate_adjusted_r2(results_semGB_Sciaenid, predictors_count = 4, observations_count = 39, specific_var2 = "BlueCrabSmall_EastBay")
-
 
 results_semAB_Sciaenid <- calculate_adjusted_r2(results_semAB_Sciaenid, predictors_count = 4, observations_count = 39, specific_var2 = "SpottedSeatrout_AransasBay")
 results_semAB_Sciaenid <- calculate_adjusted_r2(results_semAB_Sciaenid, predictors_count = 4, observations_count = 39, specific_var2 = "SpottedSeatrout_CopanoBay")

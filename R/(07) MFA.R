@@ -34,10 +34,14 @@ loodf_PDSI_forPCA <- loodf_PDSI_forPCA %>%
     Species == "AllMenhaden" ~ "Menhaden",
     TRUE ~ Species))
 
+# remove the prey species
+loodf_PDSI_forPCA <- loodf_PDSI_forPCA %>%
+  filter(!Species %in% c("Atlanticcroaker", "BlueCrab", "Menhaden", "Mullet"))
+
 # rearrange the df for mfa
 loodf_PDSI_forPCA <- loodf_PDSI_forPCA %>%
   select(
-    mean_est,
+    mean_obs,
     MajorBay,
     TrophicSystem,
     weather
@@ -61,7 +65,10 @@ weatherbiplot<-fviz_mfa_ind(res.mfa,
              habillage = "weather",  
              palette = my_colors_weather,
              addEllipses = TRUE,
+             mean.point = FALSE,
+             label = "none",
              repel = TRUE,
+             pointsize = 4,
              legend.title = "Weather")+
   theme(
     legend.position = "right",         # Move the legend to the top
@@ -70,22 +77,25 @@ weatherbiplot<-fviz_mfa_ind(res.mfa,
   )
 
 my_colors_bay <- c(
-  "AransasBay" =  "#2a9d8f",
-  "GalvestonBay" = "#f28482")
+  "Keystone Predator" =  "#90a955",
+  "Sciaenid" = "coral3")
 
-baybiplot<-fviz_mfa_ind(res.mfa,
-             habillage = "MajorBay",  
+trophicsystembiplot<-fviz_mfa_ind(res.mfa,
+             habillage = "TrophicSystem",  
              palette = my_colors_bay,
              addEllipses = TRUE,
+             mean.point = FALSE,
+             label = "none",
              repel = TRUE,
-             legend.title = "Major Bay")+
+             pointsize = 4,
+             legend.title = "Trophic System")+
   theme(
     legend.position = "right",         # Move the legend to the top
     legend.title = element_text(size = 12),  # Customize legend title font size
     plot.title = element_blank()     # Remove the plot title
   )
 
-biplots <- grid.arrange(baybiplot, weatherbiplot, ncol = 1, nrow = 2)
+biplots <- grid.arrange(trophicsystembiplot, weatherbiplot, ncol = 1, nrow = 2)
 
 ggsave("biplots.png", biplots, dpi = 250, bg = "white",
        width = 2000,
