@@ -167,37 +167,8 @@ loodf_AB_Sciaenid_PDSI_forplotting_filtered  <- loodf_AB_Sciaenid_PDSI_forplotti
     )
   )
 
-# Merge the two GB dfs to only include predator species
-merged_df_GB <- bind_rows(loodf_GB_Sciaenid_PDSI_forplotting_filtered,
-                       loodf_GB_Pred_PDSI_forplotting_filtered)
-predator_prefixes <- c("Alligator Gar", "Bull Shark", "Red Drum", "Spotted Seatrout")
-loodf_GB_PDSI_forplotting_filtered_predatorsonly <- merged_df_GB %>%
-  filter(grepl(paste0("^", predator_prefixes, collapse = "|"), Var2))
-
-# Merge the two AB dfs to only include predator species
-merged_df_AB <- bind_rows(loodf_AB_Sciaenid_PDSI_forplotting_filtered,
-                       loodf_AB_Pred_PDSI_forplotting_filtered)
-predator_prefixes <- c("Alligator Gar", "Bull Shark", "Red Drum", "Spotted Seatrout")
-loodf_AB_PDSI_forplotting_filtered_predatorsonly <- merged_df_AB %>%
-  filter(grepl(paste0("^", predator_prefixes, collapse = "|"), Var2))
-
-# Merge the two GB dfs to only include prey species
-merged_df_GB_prey <- bind_rows(loodf_GB_Sciaenid_PDSI_forplotting_filtered,
-                          loodf_GB_Pred_PDSI_forplotting_filtered)
-prey_prefixes <- c("Blue Crab", "Atlantic Croaker", "Mullet", "Menhaden")
-loodf_GB_PDSI_forplotting_filtered_preyonly <- merged_df_GB_prey %>%
-  filter(grepl(paste0("^", prey_prefixes, collapse = "|"), Var2))
-
-# Merge the two AB dfs to only include prey species
-merged_df_AB_prey <- bind_rows(loodf_AB_Sciaenid_PDSI_forplotting_filtered,
-                          loodf_AB_Pred_PDSI_forplotting_filtered)
-prey_prefixes <- c("Blue Crab", "Atlantic Croaker", "Mullet", "Menhaden")
-loodf_AB_PDSI_forplotting_filtered_preyonly <- merged_df_AB_prey %>%
-  filter(grepl(paste0("^", prey_prefixes, collapse = "|"), Var2))
-
-
-# Create the predator bar plots
-PDSI_plot_AB_predatorsonly<- ggplot(loodf_AB_PDSI_forplotting_filtered_predatorsonly, aes(x = Var2, y = mean_obs, fill = weather)) +
+# Create the sciaenid bar plots
+PDSI_plot_AB_sciaenid<- ggplot(loodf_AB_Sciaenid_PDSI_forplotting_filtered, aes(x = Var2, y = mean_obs, fill = weather)) +
     geom_bar(stat = "identity", position = "dodge", width = 0.7, color = "black", alpha = 0.8) +
   geom_errorbar(aes(
     ymin = ifelse(mean_obs > 0, mean_obs, mean_obs - se_obs),  
@@ -219,18 +190,18 @@ PDSI_plot_AB_predatorsonly<- ggplot(loodf_AB_PDSI_forplotting_filtered_predators
     legend.key.height = unit(1, "cm")  
   ) +
   annotate("text", 
-           x = 1.3,  
+           x = 4.6,  
            y = 1.75, 
            label = paste("Severely Dry Mean PDSI = ", round(mean_PDSI_dry_AB, 1)),
            size = 4.5, hjust = 0, vjust = 0.5, color = "black") +
   annotate("text", 
-           x = 1.3,  
+           x = 4.6,  
            y = 1.55 ,
            label = paste("Severely Wet Mean PDSI = ", round(mean_PDSI_wet_AB, 1)),
            size = 4.5, hjust = 0, vjust = 0.5, color = "black") 
-print(PDSI_plot_AB_predatorsonly)
+print(PDSI_plot_AB_sciaenid)
 
-PDSI_plot_GB_predatorsonly <- ggplot(loodf_GB_PDSI_forplotting_filtered_predatorsonly, aes(x = Var2, y = mean_obs, fill = weather)) +
+PDSI_plot_GB_sciaenid <- ggplot(loodf_GB_Sciaenid_PDSI_forplotting_filtered, aes(x = Var2, y = mean_obs, fill = weather)) +
   geom_bar(stat = "identity", position = "dodge", width = 0.7, color = "black", alpha = 0.8) +
   geom_errorbar(aes(
     ymin = ifelse(mean_obs > 0, mean_obs, mean_obs - se_obs),  
@@ -247,28 +218,20 @@ PDSI_plot_GB_predatorsonly <- ggplot(loodf_GB_PDSI_forplotting_filtered_predator
     plot.title = element_blank(),  
     legend.position="none")  +
   annotate("text", 
-           x = 1.8,  
+           x = 4.8,  
            y = 2.35,  
            label = paste("Severely Dry Mean PDSI = ", round(mean_PDSI_dry_GB, 1)),
            size = 4.5, hjust = 0, vjust = 0.5, color = "black") +
   annotate("text", 
-           x = 1.8,  
+           x = 4.8,  
            y = 2.05,  
            label = paste("Severely Wet Mean PDSI = ", round(mean_PDSI_wet_GB, 1)),
            size = 4.5, hjust = 0, vjust = 0.5, color = "black") 
-print(PDSI_plot_GB_predatorsonly)
+print(PDSI_plot_GB_sciaenid)
 
 
-PDSI_Plots_PredatorsOnly <- grid.arrange(PDSI_plot_AB_predatorsonly, PDSI_plot_GB_predatorsonly,
-                                    ncol = 1, nrow = 2)
-
-ggsave("PDSI_Plots_PredatorsOnly.png", PDSI_Plots_PredatorsOnly, dpi = 150, bg = "white",
-       width = 1600,
-       height = 2000,
-       units = "px") 
-
-# Create the prey bar plots
-PDSI_plot_AB_preyonly<- ggplot(loodf_AB_PDSI_forplotting_filtered_preyonly, aes(x = Var2, y = mean_obs, fill = weather)) +
+# Create the keystone bar plots
+PDSI_plot_AB_keystone<- ggplot(loodf_AB_Pred_PDSI_forplotting_filtered, aes(x = Var2, y = mean_obs, fill = weather)) +
   geom_bar(stat = "identity", position = "dodge", width = 0.7, color = "black", alpha = 0.8) +
   geom_errorbar(aes(
     ymin = ifelse(mean_obs > 0, mean_obs, mean_obs - se_obs),  
@@ -290,18 +253,18 @@ PDSI_plot_AB_preyonly<- ggplot(loodf_AB_PDSI_forplotting_filtered_preyonly, aes(
     legend.key.height = unit(1, "cm")  
   ) +
   annotate("text", 
-           x = 1.3,  
+           x = 4.8,  
            y = 1.75, 
            label = paste("Severely Dry Mean PDSI = ", round(mean_PDSI_dry_AB, 1)),
            size = 4.5, hjust = 0, vjust = 0.5, color = "black") +
   annotate("text", 
-           x = 1.3,  
+           x = 4.8,  
            y = 1.55 ,
            label = paste("Severely Wet Mean PDSI = ", round(mean_PDSI_wet_AB, 1)),
            size = 4.5, hjust = 0, vjust = 0.5, color = "black") 
-print(PDSI_plot_AB_preyonly)
+print(PDSI_plot_AB_keystone)
 
-PDSI_plot_GB_preyonly <- ggplot(loodf_GB_PDSI_forplotting_filtered_preyonly, aes(x = Var2, y = mean_obs, fill = weather)) +
+PDSI_plot_GB_keystone <- ggplot(loodf_GB_Pred_PDSI_forplotting_filtered, aes(x = Var2, y = mean_obs, fill = weather)) +
   geom_bar(stat = "identity", position = "dodge", width = 0.7, color = "black", alpha = 0.8) +
   geom_errorbar(aes(
     ymin = ifelse(mean_obs > 0, mean_obs, mean_obs - se_obs),  
@@ -318,22 +281,30 @@ PDSI_plot_GB_preyonly <- ggplot(loodf_GB_PDSI_forplotting_filtered_preyonly, aes
     plot.title = element_blank(),  
     legend.position="none")  +
   annotate("text", 
-           x = 1.8,  
+           x = 4.0,  
            y = 2.35,  
            label = paste("Severely Dry Mean PDSI = ", round(mean_PDSI_dry_GB, 1)),
            size = 4.5, hjust = 0, vjust = 0.5, color = "black") +
   annotate("text", 
-           x = 1.8,  
+           x = 4.0,  
            y = 2.05,  
            label = paste("Severely Wet Mean PDSI = ", round(mean_PDSI_wet_GB, 1)),
            size = 4.5, hjust = 0, vjust = 0.5, color = "black") 
-print(PDSI_plot_GB_preyonly)
+print(PDSI_plot_GB_keystone)
 
+# export plots
+PDSI_Plots_AB <- grid.arrange(PDSI_plot_AB_sciaenid, PDSI_plot_AB_keystone,
+                                    ncol = 1, nrow = 2)
 
-PDSI_Plots_PreyOnly <- grid.arrange(PDSI_plot_AB_preyonly, PDSI_plot_GB_preyonly,
+ggsave("PDSI_Plots_AB.png", PDSI_Plots_AB, dpi = 150, bg = "white",
+       width = 1600,
+       height = 2000,
+       units = "px") 
+
+PDSI_Plots_GB <- grid.arrange(PDSI_plot_GB_sciaenid, PDSI_plot_GB_keystone,
                                          ncol = 1, nrow = 2)
 
-ggsave("PDSI_Plots_PreyOnly.png", PDSI_Plots_PreyOnly, dpi = 150, bg = "white",
+ggsave("PDSI_Plots_GB.png", PDSI_Plots_GB, dpi = 150, bg = "white",
        width = 1600,
        height = 2000,
        units = "px") 

@@ -775,3 +775,89 @@ plot_species_timeseries(AransasBay_Pred_Wide, aransas_colors, pred_labels_AB)
 plot_species_timeseries(GalvestonBay_Sciaenid_Wide, galveston_colors, sciaenid_labels)
 plot_species_timeseries(GalvestonBay_Pred_Wide, galveston_colors, pred_labels)
 
+
+# make time series plots of whole bay means of salinity and PDSI for both major bays 
+
+# Calculate row-wise means for salinity
+AransasBaySalinity <- rowMeans(
+  AransasBay_Sciaenid_Wide[, c("Salinity_AransasBay", "Salinity_CopanoBay", "Salinity_MesquiteBay")],
+  na.rm = TRUE)
+GalvestonBaySalinity <- rowMeans(
+  GalvestonBay_Sciaenid_Wide[, c("Salinity_WestBay", "Salinity_EastBay", "Salinity_GalvestonBay", "Salinity_TrinityBay")],
+  na.rm = TRUE)
+
+YEAR <- AransasBay_Sciaenid_Wide_Trans$YEAR
+AransasBayPDSI <- AransasBay_Sciaenid_Wide_Trans$PDSI
+GalvestonBayPDSI <- GalvestonBay_Sciaenid_Wide_Trans$PDSI
+
+AbioticMeans <- data.frame(
+  YEAR = YEAR,
+  AransasBaySalinity = AransasBaySalinity,
+  GalvestonBaySalinity = GalvestonBaySalinity,
+  AransasBayPDSI = AransasBayPDSI,
+  GalvestonBayPDSI = GalvestonBayPDSI)
+
+AbioticMeans_long <- AbioticMeans %>%
+  pivot_longer(
+    cols = c(AransasBaySalinity, GalvestonBaySalinity, AransasBayPDSI, GalvestonBayPDSI),
+    names_to = c("Bay", "Variable"),
+    names_pattern = "(AransasBay|GalvestonBay)(Salinity|PDSI)",
+    values_to = "Value" ) %>%
+  pivot_wider(
+    names_from = Variable,
+    values_from = Value)
+
+SALPLOT<-ggplot(AbioticMeans_long, aes(x = YEAR, y = Salinity, color = Bay, group = Bay)) +
+  geom_line(size = 1.2) +
+  scale_color_manual(
+    values = c(
+      "AransasBay" = "#2a9d8f",
+      "GalvestonBay" = "#f28482"))+
+  labs(
+    x = NULL, 
+    color = "Bay")+
+  theme_bw()+
+    theme(legend.position = "none",
+          axis.text.x = element_blank(),
+          axis.text.y = element_text(size = 8),
+          axis.title.y = element_text(size = 12),
+          axis.title.x = element_blank(),
+          plot.title = element_blank())
+
+PDSIPLOT<-ggplot(AbioticMeans_long, aes(x = YEAR, y = PDSI, color = Bay, group = Bay)) +
+  geom_line(size = 1.2) +
+  scale_color_manual(
+    values = c(
+      "AransasBay" = "#2a9d8f",
+      "GalvestonBay" = "#f28482"),
+    labels = c(
+      "AransasBay" = "Aransas Bay",
+      "GalvestonBay" = "Galveston Bay"))+
+  labs(
+    x = "Year",
+    y = "PDSI",
+    color = "Bay")+
+  theme_bw()+
+  theme(
+    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1, size = 8),
+    axis.text.y = element_text(size = 10),
+    axis.title.y = element_text(size = 12),
+    axis.title.x = element_text(size = 10),
+    legend.position = c(0.05, 0.05),      
+    legend.justification = c(0, 0),  
+    legend.text = element_text(size = 9),
+    legend.title = element_text(size = 11),
+    legend.background = element_rect(fill = "white", color = NA), 
+    plot.title = element_blank())
+
+# combine the three maps into one layout
+ABIOTICPLOT <- grid.arrange(SALPLOT, PDSIPLOT, ncol = 1, nrow = 2)
+ggsave("ABIOTICPLOT.png", ABIOTICPLOT, width = 7, height = 9, dpi = 200)
+
+mean(AbioticMeans_long$Salinity[AbioticMeans_long$Bay == "AransasBay"], na.rm = TRUE)
+mean(AbioticMeans_long$Salinity[AbioticMeans_long$Bay == "GalvestonBay"], na.rm = TRUE)
+mean(AbioticMeans_long$PDSI[AbioticMeans_long$Bay == "AransasBay"], na.rm = TRUE)
+mean(AbioticMeans_long$PDSI[AbioticMeans_long$Bay == "GalvestonBay"], na.rm = TRUE)
+
+
+
