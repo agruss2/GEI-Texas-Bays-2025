@@ -15,6 +15,13 @@ library(git2r)
 library(tidyverse)
 library(patchwork)
 library(cowplot)
+library(ggspatial)
+
+
+########## Process (get means per space and time, log transform, z score transform, etc) all raw data 
+########## Make basic maps showing spatial dilineations
+########## Make time series plots of raw annual values for each species, trophic system and bay
+
 
 
 # Get all files from github
@@ -571,7 +578,7 @@ GBMAP<-ggplot() +
   coord_sf(xlim = c(-95.4, -94.5),
            ylim = c(29.0, 29.8)) +
   geom_point(data = GalvestonBay_GN_cpue_map, aes(x = X, y = Y, color = Bay_Area), size = 1.5) +
-  labs(x = "Longitude", y = "Latitude", title = "Galveston Bay", color = "Bay Area") +
+  labs(x = "Longitude", y = "Latitude", title = "Galveston Bay Estuary", color = "Bay Area") +
   theme_bw()+
   scale_color_manual(values = bay_colors_GB) +
   theme(
@@ -581,7 +588,11 @@ GBMAP<-ggplot() +
     axis.text = element_text(size = 6), 
     axis.title = element_text(size = 6),  
     plot.title = element_text(size = 12)  
-  )
+  )+
+  annotation_scale(location = "tl", width_hint = 0.3, text_cex = 0.7, unit_category = "metric") + 
+  annotation_north_arrow(location = "bl", which_north = "true", 
+                         pad_x = unit(0.2, "in"), pad_y = unit(0.6, "in"),
+                         style = north_arrow_fancy_orienteering)
 
 # AB 
 
@@ -611,7 +622,7 @@ ABMAP<-ggplot() +
   coord_sf(xlim = c(-97.3, -96.7),
            ylim = c(27.8, 28.3)) +
   geom_point(data = AransasBay_GN_cpue_map, aes(x = X, y = Y, color = Bay_Area), size = 1.5) +
-  labs(x = "Longitude", y = "Latitude", title = "Aransas Bay", color = "Bay Area") +
+  labs(x = "Longitude", y = "Latitude", title = "Mission Aransas Estuary", color = "Bay Area") +
   theme_bw()+
   scale_color_manual(values = bay_colors_AB) +
   theme(
@@ -621,7 +632,9 @@ ABMAP<-ggplot() +
     axis.text = element_text(size = 6),  
     axis.title = element_text(size = 6),  
     plot.title = element_text(size = 12)  
-  )
+  )+
+  annotation_scale(location = "tl", width_hint = 0.3, text_cex = 0.7, unit_category = "metric") 
+  
 
 # make inset for whole state of texas
 TEXMAP<-ggplot() +
@@ -649,7 +662,11 @@ combined_map <- grid.arrange(ABMAP, GBMAP, ncol = 1, nrow = 2)
 ggsave("combined_map.png", combined_map, width = 6, height = 9, dpi = 200)
 
 
-#### make time series plots of raw annual values for each species, trophic system and bay
+
+
+####### Make time series plots of raw annual values for each species, trophic system and bay
+
+
 
 
 # Reusable function for plotting
@@ -764,4 +781,90 @@ plot_species_timeseries(AransasBay_Sciaenid_Wide, aransas_colors, sciaenid_label
 plot_species_timeseries(AransasBay_Pred_Wide, aransas_colors, pred_labels_AB)
 plot_species_timeseries(GalvestonBay_Sciaenid_Wide, galveston_colors, sciaenid_labels)
 plot_species_timeseries(GalvestonBay_Pred_Wide, galveston_colors, pred_labels)
+
+
+# make time series plots of whole bay means of salinity and PDSI for both major bays 
+
+# Calculate row-wise means for salinity
+AransasBaySalinity <- rowMeans(
+  AransasBay_Sciaenid_Wide[, c("Salinity_AransasBay", "Salinity_CopanoBay", "Salinity_MesquiteBay")],
+  na.rm = TRUE)
+GalvestonBaySalinity <- rowMeans(
+  GalvestonBay_Sciaenid_Wide[, c("Salinity_WestBay", "Salinity_EastBay", "Salinity_GalvestonBay", "Salinity_TrinityBay")],
+  na.rm = TRUE)
+
+YEAR <- AransasBay_Sciaenid_Wide_Trans$YEAR
+AransasBayPDSI <- AransasBay_Sciaenid_Wide_Trans$PDSI
+GalvestonBayPDSI <- GalvestonBay_Sciaenid_Wide_Trans$PDSI
+
+AbioticMeans <- data.frame(
+  YEAR = YEAR,
+  AransasBaySalinity = AransasBaySalinity,
+  GalvestonBaySalinity = GalvestonBaySalinity,
+  AransasBayPDSI = AransasBayPDSI,
+  GalvestonBayPDSI = GalvestonBayPDSI)
+
+AbioticMeans_long <- AbioticMeans %>%
+  pivot_longer(
+    cols = c(AransasBaySalinity, GalvestonBaySalinity, AransasBayPDSI, GalvestonBayPDSI),
+    names_to = c("Bay", "Variable"),
+    names_pattern = "(AransasBay|GalvestonBay)(Salinity|PDSI)",
+    values_to = "Value" ) %>%
+  pivot_wider(
+    names_from = Variable,
+    values_from = Value)
+
+SALPLOT<-ggplot(AbioticMeans_long, aes(x = YEAR, y = Salinity, color = Bay, group = Bay)) +
+  geom_line(size = 1.2) +
+  scale_color_manual(
+    values = c(
+      "AransasBay" = "#2a9d8f",
+      "GalvestonBay" = "#f28482"))+
+  labs(
+    x = NULL, 
+    color = "Bay")+
+  theme_bw()+
+    theme(legend.position = "none",
+          axis.text.x = element_blank(),
+          axis.text.y = element_text(size = 8),
+          axis.title.y = element_text(size = 12),
+          axis.title.x = element_blank(),
+          plot.title = element_blank())
+
+PDSIPLOT<-ggplot(AbioticMeans_long, aes(x = YEAR, y = PDSI, color = Bay, group = Bay)) +
+  geom_line(size = 1.2) +
+  scale_color_manual(
+    values = c(
+      "AransasBay" = "#2a9d8f",
+      "GalvestonBay" = "#f28482"),
+    labels = c(
+      "AransasBay" = "Mission Aransas Estuary",
+      "GalvestonBay" = "Galveston Bay Estuary"))+
+  labs(
+    x = "Year",
+    y = "PDSI",
+    color = "Bay")+
+  theme_bw()+
+  theme(
+    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1, size = 8),
+    axis.text.y = element_text(size = 10),
+    axis.title.y = element_text(size = 12),
+    axis.title.x = element_text(size = 10),
+    legend.position = c(0.05, 0.05),      
+    legend.justification = c(0, 0),  
+    legend.text = element_text(size = 9),
+    legend.title = element_text(size = 11),
+    legend.background = element_rect(fill = "white", color = NA), 
+    plot.title = element_blank())
+
+# combine the three maps into one layout
+ABIOTICPLOT <- grid.arrange(SALPLOT, PDSIPLOT, ncol = 1, nrow = 2)
+ggsave("ABIOTICPLOT.png", ABIOTICPLOT, width = 7, height = 9, dpi = 200)
+
+mean(AbioticMeans_long$Salinity[AbioticMeans_long$Bay == "AransasBay"], na.rm = TRUE)
+mean(AbioticMeans_long$Salinity[AbioticMeans_long$Bay == "GalvestonBay"], na.rm = TRUE)
+mean(AbioticMeans_long$PDSI[AbioticMeans_long$Bay == "AransasBay"], na.rm = TRUE)
+mean(AbioticMeans_long$PDSI[AbioticMeans_long$Bay == "GalvestonBay"], na.rm = TRUE)
+
+
 

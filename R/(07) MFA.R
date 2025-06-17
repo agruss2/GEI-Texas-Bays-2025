@@ -34,15 +34,20 @@ loodf_PDSI_forPCA <- loodf_PDSI_forPCA %>%
     Species == "AllMenhaden" ~ "Menhaden",
     TRUE ~ Species))
 
+
 # rearrange the df for mfa
 loodf_PDSI_forPCA <- loodf_PDSI_forPCA %>%
   select(
-    mean_est,
+    mean_obs,
     MajorBay,
     TrophicSystem,
     weather
   )
 
+loodf_PDSI_forPCA <- loodf_PDSI_forPCA %>%
+  mutate(MajorBay = ifelse(MajorBay == "AransasBay", "Mission Aransas Estuary", MajorBay)) %>%
+  mutate(MajorBay = ifelse(MajorBay == "GalvestonBay", "Galveston Bay Estuary", MajorBay))
+  
 res.mfa <- MFA(loodf_PDSI_forPCA,
                group = c(1, 1, 1, 1),  
                type = c("s", "n", "n", "n"),
@@ -61,8 +66,11 @@ weatherbiplot<-fviz_mfa_ind(res.mfa,
              habillage = "weather",  
              palette = my_colors_weather,
              addEllipses = TRUE,
+             mean.point = FALSE,
+             label = "none",
              repel = TRUE,
-             legend.title = "Weather")+
+             pointsize = 3,
+             legend.title = "Weather Condition")+
   theme(
     legend.position = "right",         # Move the legend to the top
     legend.title = element_text(size = 12),  # Customize legend title font size
@@ -70,14 +78,17 @@ weatherbiplot<-fviz_mfa_ind(res.mfa,
   )
 
 my_colors_bay <- c(
-  "AransasBay" =  "#2a9d8f",
-  "GalvestonBay" = "#f28482")
+  "Mission Aransas Estuary" =  "#2a9d8f",
+  "Galveston Bay Estuary" = "#f28482")
 
-baybiplot<-fviz_mfa_ind(res.mfa,
+majorbaybiplot<-fviz_mfa_ind(res.mfa,
              habillage = "MajorBay",  
              palette = my_colors_bay,
              addEllipses = TRUE,
+             mean.point = FALSE,
+             label = "none",
              repel = TRUE,
+             pointsize = 3,
              legend.title = "Major Bay")+
   theme(
     legend.position = "right",         # Move the legend to the top
@@ -85,7 +96,7 @@ baybiplot<-fviz_mfa_ind(res.mfa,
     plot.title = element_blank()     # Remove the plot title
   )
 
-biplots <- grid.arrange(baybiplot, weatherbiplot, ncol = 1, nrow = 2)
+biplots <- grid.arrange(majorbaybiplot, weatherbiplot, ncol = 1, nrow = 2)
 
 ggsave("biplots.png", biplots, dpi = 250, bg = "white",
        width = 2000,
