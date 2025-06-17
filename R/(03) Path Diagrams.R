@@ -159,8 +159,8 @@ df_Sciaenid <- data.frame(Salinity = numeric(),
                           stringsAsFactors = FALSE)
 
 png("path_diagram_AB_Sci.png", width = 1600, height = 2000, bg = "transparent")
-plot_qgraph_combined_with_lag(df_Sciaenid, coef_matrix_AB_Sciaenid_YesLag, plot_title = "Aransas Bay - Sciaenid System", bg_color = "white")
-plot_qgraph_combined_without_lag(df_Sciaenid, coef_matrix_AB_Sciaenid_NoLag, plot_title = "Aransas Bay - Sciaenid System", bg_color = "transparent")
+plot_qgraph_combined_with_lag(df_Sciaenid, coef_matrix_AB_Sciaenid_YesLag, plot_title = "Mission Aransas Estuary - Sciaenid System", bg_color = "white")
+plot_qgraph_combined_without_lag(df_Sciaenid, coef_matrix_AB_Sciaenid_NoLag, plot_title = "Mission Aransas Estuary - Sciaenid System", bg_color = "transparent")
 dev.off()
 
 #### GB Sciaenid 
@@ -178,8 +178,8 @@ df_Sciaenid <- data.frame(Salinity = numeric(),
                           stringsAsFactors = FALSE)
 
 png("path_diagram_GB_Sci.png",width = 1600, height = 2000, bg = "transparent")
-plot_qgraph_combined_with_lag(df_Sciaenid, coef_matrix_GB_Sciaenid_YesLag, plot_title = "Galveston Bay - Sciaenid System", bg_color = "white")
-plot_qgraph_combined_without_lag(df_Sciaenid, coef_matrix_GB_Sciaenid_NoLag, plot_title = "Galveston Bay - Sciaenid System", bg_color = "transparent")
+plot_qgraph_combined_with_lag(df_Sciaenid, coef_matrix_GB_Sciaenid_YesLag, plot_title = "Galveston Bay Estuary - Sciaenid System", bg_color = "white")
+plot_qgraph_combined_without_lag(df_Sciaenid, coef_matrix_GB_Sciaenid_NoLag, plot_title = "Galveston Bay Estuary - Sciaenid System", bg_color = "transparent")
 dev.off()
 
 
@@ -198,8 +198,8 @@ df_Pred<- data.frame(Salinity = numeric(),
                           stringsAsFactors = FALSE)
 
 png("path_diagram_AB_Pred.png", width = 1600, height = 2000, bg = "transparent")
-plot_qgraph_combined_with_lag(df_Pred, coef_matrix_AB_Pred_YesLag, plot_title = "Aransas Bay - Keystone Predator System", bg_color = "white")
-plot_qgraph_combined_without_lag(df_Pred, coef_matrix_AB_Pred_NoLag, plot_title = "Aransas Bay - Keystone Predator System", bg_color = "transparent")
+plot_qgraph_combined_with_lag(df_Pred, coef_matrix_AB_Pred_YesLag, plot_title = "Mission Aransas Estuary - Keystone Predator System", bg_color = "white")
+plot_qgraph_combined_without_lag(df_Pred, coef_matrix_AB_Pred_NoLag, plot_title = "Mission Aransas Estuary - Keystone Predator System", bg_color = "transparent")
 dev.off()
 
 
@@ -218,8 +218,8 @@ df_Pred<- data.frame(Salinity = numeric(),
                      stringsAsFactors = FALSE)
 
 png("path_diagram_GB_Pred.png", width = 1600, height = 2000, bg = "transparent")
-plot_qgraph_combined_with_lag(df_Pred, coef_matrix_GB_Pred_YesLag, plot_title = "Galveston Bay - Keystone Predator System", bg_color = "white")
-plot_qgraph_combined_without_lag(df_Pred, coef_matrix_GB_Pred_NoLag, plot_title = "Galveston Bay - Keystone Predator System", bg_color = "transparent")
+plot_qgraph_combined_with_lag(df_Pred, coef_matrix_GB_Pred_YesLag, plot_title = "Galveston Bay Estuary - Keystone Predator System", bg_color = "white")
+plot_qgraph_combined_without_lag(df_Pred, coef_matrix_GB_Pred_NoLag, plot_title = "Galveston Bay Estuary - Keystone Predator System", bg_color = "transparent")
 dev.off()
 
 

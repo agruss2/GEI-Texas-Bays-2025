@@ -15,6 +15,7 @@ library(git2r)
 library(tidyverse)
 library(patchwork)
 library(cowplot)
+library(ggspatial)
 
 
 ########## Process (get means per space and time, log transform, z score transform, etc) all raw data 
@@ -577,7 +578,7 @@ GBMAP<-ggplot() +
   coord_sf(xlim = c(-95.4, -94.5),
            ylim = c(29.0, 29.8)) +
   geom_point(data = GalvestonBay_GN_cpue_map, aes(x = X, y = Y, color = Bay_Area), size = 1.5) +
-  labs(x = "Longitude", y = "Latitude", title = "Galveston Bay", color = "Bay Area") +
+  labs(x = "Longitude", y = "Latitude", title = "Galveston Bay Estuary", color = "Bay Area") +
   theme_bw()+
   scale_color_manual(values = bay_colors_GB) +
   theme(
@@ -587,7 +588,11 @@ GBMAP<-ggplot() +
     axis.text = element_text(size = 6), 
     axis.title = element_text(size = 6),  
     plot.title = element_text(size = 12)  
-  )
+  )+
+  annotation_scale(location = "tl", width_hint = 0.3, text_cex = 0.7, unit_category = "metric") + 
+  annotation_north_arrow(location = "bl", which_north = "true", 
+                         pad_x = unit(0.2, "in"), pad_y = unit(0.6, "in"),
+                         style = north_arrow_fancy_orienteering)
 
 # AB 
 
@@ -617,7 +622,7 @@ ABMAP<-ggplot() +
   coord_sf(xlim = c(-97.3, -96.7),
            ylim = c(27.8, 28.3)) +
   geom_point(data = AransasBay_GN_cpue_map, aes(x = X, y = Y, color = Bay_Area), size = 1.5) +
-  labs(x = "Longitude", y = "Latitude", title = "Aransas Bay", color = "Bay Area") +
+  labs(x = "Longitude", y = "Latitude", title = "Mission Aransas Estuary", color = "Bay Area") +
   theme_bw()+
   scale_color_manual(values = bay_colors_AB) +
   theme(
@@ -627,7 +632,9 @@ ABMAP<-ggplot() +
     axis.text = element_text(size = 6),  
     axis.title = element_text(size = 6),  
     plot.title = element_text(size = 12)  
-  )
+  )+
+  annotation_scale(location = "tl", width_hint = 0.3, text_cex = 0.7, unit_category = "metric") 
+  
 
 # make inset for whole state of texas
 TEXMAP<-ggplot() +
@@ -831,8 +838,8 @@ PDSIPLOT<-ggplot(AbioticMeans_long, aes(x = YEAR, y = PDSI, color = Bay, group =
       "AransasBay" = "#2a9d8f",
       "GalvestonBay" = "#f28482"),
     labels = c(
-      "AransasBay" = "Aransas Bay",
-      "GalvestonBay" = "Galveston Bay"))+
+      "AransasBay" = "Mission Aransas Estuary",
+      "GalvestonBay" = "Galveston Bay Estuary"))+
   labs(
     x = "Year",
     y = "PDSI",

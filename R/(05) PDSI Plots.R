@@ -178,27 +178,12 @@ PDSI_plot_AB_sciaenid<- ggplot(loodf_AB_Sciaenid_PDSI_forplotting_filtered, aes(
   theme_bw() +  
   labs(x = NULL,y = "Mean Standardized CPUE", fill = NULL)+
   theme(
-    axis.text.x = element_text(angle = 45, hjust = 1, size = 12),  
+    axis.text.x = element_text(angle = 65, hjust = 1, size = 12),  
     axis.text.y = element_text(size = 12),
     axis.title.x = element_text(size = 14),
     axis.title.y = element_text(size = 16),
-    plot.title = element_blank(),  
-    legend.position = c(0.90, 0.90),  
-    legend.title = element_text(size = 12),
-    legend.text = element_text(size = 16),
-    legend.background = element_blank(),
-    legend.key.height = unit(1, "cm")  
-  ) +
-  annotate("text", 
-           x = 4.6,  
-           y = 1.75, 
-           label = paste("Severely Dry Mean PDSI = ", round(mean_PDSI_dry_AB, 1)),
-           size = 4.5, hjust = 0, vjust = 0.5, color = "black") +
-  annotate("text", 
-           x = 4.6,  
-           y = 1.55 ,
-           label = paste("Severely Wet Mean PDSI = ", round(mean_PDSI_wet_AB, 1)),
-           size = 4.5, hjust = 0, vjust = 0.5, color = "black") 
+    plot.title = element_blank(),
+    legend.position="none") 
 print(PDSI_plot_AB_sciaenid)
 
 PDSI_plot_GB_sciaenid <- ggplot(loodf_GB_Sciaenid_PDSI_forplotting_filtered, aes(x = Var2, y = mean_obs, fill = weather)) +
@@ -211,22 +196,12 @@ PDSI_plot_GB_sciaenid <- ggplot(loodf_GB_Sciaenid_PDSI_forplotting_filtered, aes
   theme_bw() +  
   labs(x = NULL,y = "Mean Standardized CPUE", fill = NULL)+
   theme(
-    axis.text.x = element_text(angle = 45, hjust = 1, size = 12),  
+    axis.text.x = element_text(angle = 65, hjust = 1, size = 12),  
     axis.text.y = element_text(size = 12),
     axis.title.x = element_text(size = 14),
     axis.title.y = element_text(size = 16),
-    plot.title = element_blank(),  
-    legend.position="none")  +
-  annotate("text", 
-           x = 4.8,  
-           y = 2.35,  
-           label = paste("Severely Dry Mean PDSI = ", round(mean_PDSI_dry_GB, 1)),
-           size = 4.5, hjust = 0, vjust = 0.5, color = "black") +
-  annotate("text", 
-           x = 4.8,  
-           y = 2.05,  
-           label = paste("Severely Wet Mean PDSI = ", round(mean_PDSI_wet_GB, 1)),
-           size = 4.5, hjust = 0, vjust = 0.5, color = "black") 
+    plot.title = element_blank(),
+    legend.position="none") 
 print(PDSI_plot_GB_sciaenid)
 
 
@@ -245,22 +220,17 @@ PDSI_plot_AB_keystone<- ggplot(loodf_AB_Pred_PDSI_forplotting_filtered, aes(x = 
     axis.text.y = element_text(size = 12),
     axis.title.x = element_text(size = 14),
     axis.title.y = element_text(size = 16),
-    plot.title = element_blank(),  
-    legend.position = c(0.90, 0.90),  
-    legend.title = element_text(size = 12),
-    legend.text = element_text(size = 16),
-    legend.background = element_blank(),
-    legend.key.height = unit(1, "cm")  
-  ) +
+    plot.title = element_blank(),
+    legend.position="none")  +
   annotate("text", 
            x = 4.8,  
            y = 1.75, 
-           label = paste("Severely Dry Mean PDSI = ", round(mean_PDSI_dry_AB, 1)),
+           label = paste("MAE Severely Dry Mean PDSI = ", round(mean_PDSI_dry_AB, 1)),
            size = 4.5, hjust = 0, vjust = 0.5, color = "black") +
   annotate("text", 
            x = 4.8,  
            y = 1.55 ,
-           label = paste("Severely Wet Mean PDSI = ", round(mean_PDSI_wet_AB, 1)),
+           label = paste("MAE Severely Wet Mean PDSI = ", round(mean_PDSI_wet_AB, 1)),
            size = 4.5, hjust = 0, vjust = 0.5, color = "black") 
 print(PDSI_plot_AB_keystone)
 
@@ -279,20 +249,33 @@ PDSI_plot_GB_keystone <- ggplot(loodf_GB_Pred_PDSI_forplotting_filtered, aes(x =
     axis.title.x = element_text(size = 14),
     axis.title.y = element_text(size = 16),
     plot.title = element_blank(),  
-    legend.position="none")  +
+    legend.position = c(0.15, 0.85),  
+    legend.title = element_text(size = 12),
+    legend.text = element_text(size = 16),
+    legend.background = element_blank(),
+    legend.key.height = unit(1, "cm")  
+  ) +
   annotate("text", 
-           x = 4.0,  
-           y = 2.35,  
-           label = paste("Severely Dry Mean PDSI = ", round(mean_PDSI_dry_GB, 1)),
+           x = 7.0,  
+           y = 2.75,  
+           label = paste("GBE Severely Dry Mean PDSI = ", round(mean_PDSI_dry_GB, 1)),
            size = 4.5, hjust = 0, vjust = 0.5, color = "black") +
   annotate("text", 
-           x = 4.0,  
-           y = 2.05,  
-           label = paste("Severely Wet Mean PDSI = ", round(mean_PDSI_wet_GB, 1)),
+           x = 7.0,  
+           y = 2.45,  
+           label = paste("GBE Severely Wet Mean PDSI = ", round(mean_PDSI_wet_GB, 1)),
            size = 4.5, hjust = 0, vjust = 0.5, color = "black") 
 print(PDSI_plot_GB_keystone)
 
 # export plots
+PDSI_Plots_All <- grid.arrange(PDSI_plot_AB_sciaenid, PDSI_plot_AB_keystone, PDSI_plot_GB_sciaenid, PDSI_plot_GB_keystone,
+                               ncol = 2, nrow = 2)
+
+ggsave("PDSI_Plots_All.png", PDSI_Plots_All, dpi = 150, bg = "white",
+       width = 2600,
+       height = 1600,
+       units = "px") 
+
 PDSI_Plots_AB <- grid.arrange(PDSI_plot_AB_sciaenid, PDSI_plot_AB_keystone,
                                     ncol = 1, nrow = 2)
 
@@ -308,4 +291,6 @@ ggsave("PDSI_Plots_GB.png", PDSI_Plots_GB, dpi = 150, bg = "white",
        width = 1600,
        height = 2000,
        units = "px") 
+
+
 

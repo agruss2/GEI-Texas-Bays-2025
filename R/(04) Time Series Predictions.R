@@ -224,11 +224,34 @@ results <- cross_validation_ts(
 print(results_semAB_Sciaenid)
 
 
-# calculcate adjusted R2 values
+# calculcate spearmen rho and adjusted R2 values
 results_semAB_Pred <- as.data.frame(results_semAB_Pred)
 results_semGB_Pred <- as.data.frame(results_semGB_Pred)
 results_semGB_Sciaenid <- as.data.frame(results_semGB_Sciaenid)
 results_semAB_Sciaenid <- as.data.frame(results_semAB_Sciaenid)
+
+add_spearman_rho <- function(pred_df, results_df) {
+  results_df$spearman_rho <- NA
+  
+  for (i in seq_len(nrow(results_df))) {
+    var2_value <- results_df$Var2[i]
+    
+    df_subset <- pred_df %>% 
+      filter(Var2 == var2_value)
+    
+    if (nrow(df_subset) >= 2) {
+      rho <- cor(df_subset$obs, df_subset$est, method = "spearman", use = "complete.obs")
+      results_df$spearman_rho[i] <- rho
+    }
+  }
+  
+  return(results_df)
+}
+
+results_semAB_Pred <- add_spearman_rho(loodf_AB_Pred, results_semAB_Pred)
+results_semGB_Pred <- add_spearman_rho(loodf_GB_Pred, results_semGB_Pred)
+results_semAB_Sciaenid <- add_spearman_rho(loodf_AB_Sciaenid, results_semAB_Sciaenid)
+results_semGB_Sciaenid <- add_spearman_rho(loodf_GB_Sciaenid, results_semGB_Sciaenid)
 
 results_semAB_Pred <- results_semAB_Pred %>% select(Var2, correlation, RMSE, R_squared, spearman_rho)
 results_semGB_Pred <- results_semGB_Pred %>% select(Var2, correlation, RMSE, R_squared, spearman_rho)
@@ -772,13 +795,13 @@ squared_df$major_bay <- factor(squared_df$major_bay, levels = c("Aransas Bay", "
 
 species_colors <- c(
   "BullShark" = "#f28482",
-  "AlligatorGar" = "indianred3",
+  "AlligatorGar" = "#e9c46a",
   "RedDrum" = "#f28482",
-  "SpottedSeatrout" = "indianred3",
+  "SpottedSeatrout" = "#e9c46a",
   "BlueCrab" = "#2a9d8f",
-  "AtlanticCroaker" = "cadetblue3",
+  "AtlanticCroaker" = "#90a955",
   "Mullet" = "#2a9d8f",
-  "Menhaden" = "cadetblue3"
+  "Menhaden" = "#90a955"
 )
 
 squared_df <- squared_df %>%
@@ -826,3 +849,4 @@ ggsave("rhoplot.png", rhoplot, dpi = 150, bg = "white",
        width = 2000,
        height = 1000,
        units = "px")
+
