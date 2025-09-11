@@ -85,13 +85,13 @@ totaleffectsABpred_mean <- totaleffectsABpred_mean %>%
 
 ABpred_totaleffectsplot<-ggplot(totaleffectsABpred_mean, aes(x = to_variable, y = mean_total_effect, fill = from_variable)) +
   geom_errorbar(aes(
-    ymin = ifelse(mean_total_effect > 0, mean_total_effect, mean_total_effect - se_total_effect),  
-    ymax = ifelse(mean_total_effect > 0, mean_total_effect + se_total_effect, mean_total_effect)   
-  ), width = 0.25, position = position_dodge(0.9)) +
+    ymin = mean_total_effect - se_total_effect,
+    ymax = mean_total_effect + se_total_effect 
+  ), width = 0.25, position = position_dodge(0.9)) +  
   geom_bar(stat = "identity", position = "dodge", alpha = 0.7, color = "black") +
   geom_vline(xintercept = vline_positions, linetype = "dashed", color = "gray50") +
   facet_wrap(~ lag, labeller = labeller(lag = lag_labels)) +
-  labs(title = "Mission Aransas Estuary - Keystone Predator System",
+  labs(title = "Mission Aransas - Keystone Predator System",
        y = "Mean Total Effect", x = "Response", fill = "Predictor") +
   theme_bw() +
   theme(strip.text = element_text(face = "bold", size = 14),
@@ -181,13 +181,13 @@ predictor_labels_ABSciaenid <- c(
 
 ABSciaenid_totaleffectsplot<-ggplot(totaleffectsABSciaenid_mean, aes(x = to_variable, y = mean_total_effect, fill = from_variable)) +
   geom_errorbar(aes(
-    ymin = ifelse(mean_total_effect > 0, mean_total_effect, mean_total_effect - se_total_effect),  
-    ymax = ifelse(mean_total_effect > 0, mean_total_effect + se_total_effect, mean_total_effect)   
-  ), width = 0.25, position = position_dodge(0.9)) +
+    ymin = mean_total_effect - se_total_effect,
+    ymax = mean_total_effect + se_total_effect 
+  ), width = 0.25, position = position_dodge(0.9)) +  
   geom_bar(stat = "identity", position = "dodge", alpha = 0.7, color = "black") +
   geom_vline(xintercept = vline_positions, linetype = "dashed", color = "gray50") +
   facet_wrap(~ lag, labeller = labeller(lag = lag_labels)) +
-  labs(title = "Mission Aransas Estuary - Sciaenid System",
+  labs(title = "Mission Aransas - Sciaenid System",
        y = "Mean Total Effect", x = "Response", fill = "Predictor") +
   theme_bw() +
   theme(strip.text = element_text(face = "bold", size = 14),
@@ -210,7 +210,7 @@ ggsave("ABSciaenid_totaleffectsplot.png", ABSciaenid_totaleffectsplot, dpi = 150
 
 
 # second: GB sciaenid system
-totaleffectsGBSciaenid<-total_effect(fit_semGB_Sciaenid_fullbottomup, n_lags = 4)
+totaleffectsGBSciaenid<-total_effect(fit_semGB_Sciaenid_fulltopdown, n_lags = 4)
 
 # removing unwanted observations 
 totaleffectsGBSciaenid <- totaleffectsGBSciaenid %>%
@@ -283,13 +283,13 @@ predictor_labels_GBSciaenid <- c(
 
 GBSciaenid_totaleffectsplot<-ggplot(totaleffectsGBSciaenid_mean, aes(x = to_variable, y = mean_total_effect, fill = from_variable)) +
   geom_errorbar(aes(
-    ymin = ifelse(mean_total_effect > 0, mean_total_effect, mean_total_effect - se_total_effect),  
-    ymax = ifelse(mean_total_effect > 0, mean_total_effect + se_total_effect, mean_total_effect)   
-  ), width = 0.25, position = position_dodge(0.9)) +
+    ymin = mean_total_effect - se_total_effect,
+    ymax = mean_total_effect + se_total_effect 
+  ), width = 0.25, position = position_dodge(0.9)) +  
   geom_bar(stat = "identity", position = "dodge", alpha = 0.7, color = "black") +
   geom_vline(xintercept = vline_positions, linetype = "dashed", color = "gray50") +
   facet_wrap(~ lag, labeller = labeller(lag = lag_labels)) +
-  labs(title = "Galveston Bay Estuary - Sciaenid System",
+  labs(title = "Galveston Bay - Sciaenid System",
        y = "Mean Total Effect", x = "Response", fill = "Predictor") +
   theme_bw() +
   theme(strip.text = element_text(face = "bold", size = 14),
@@ -388,13 +388,13 @@ predictor_labels_GBpred <- c(
 
 GBpred_totaleffectsplot<-ggplot(totaleffectsGBpred_mean, aes(x = to_variable, y = mean_total_effect, fill = from_variable)) +
   geom_errorbar(aes(
-    ymin = ifelse(mean_total_effect > 0, mean_total_effect, mean_total_effect - se_total_effect),  
-    ymax = ifelse(mean_total_effect > 0, mean_total_effect + se_total_effect, mean_total_effect)   
-  ), width = 0.25, position = position_dodge(0.9)) +
+    ymin = mean_total_effect - se_total_effect,
+    ymax = mean_total_effect + se_total_effect 
+  ), width = 0.25, position = position_dodge(0.9)) +  
   geom_bar(stat = "identity", position = "dodge", alpha = 0.7, color = "black") +
   geom_vline(xintercept = vline_positions, linetype = "dashed", color = "gray50") +
   facet_wrap(~ lag, labeller = labeller(lag = lag_labels)) +
-  labs(title = "Galveston Bay Estuary - Keystone Predator System",
+  labs(title = "Galveston Bay - Keystone Predator System",
   y = "Mean Total Effect", x = "Response", fill = "Predictor") +
   theme_bw() +
   theme(strip.text = element_text(face = "bold", size = 14),

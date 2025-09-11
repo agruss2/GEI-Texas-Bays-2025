@@ -1313,6 +1313,16 @@ SpottedSeatrout_TrinityBay -> SpottedSeatrout_TrinityBay, 1, l13
 SpottedSeatrout_GalvestonBay -> SpottedSeatrout_GalvestonBay, 1, l14
 SpottedSeatrout_WestBay -> SpottedSeatrout_WestBay, 1, l15
 SpottedSeatrout_EastBay -> SpottedSeatrout_EastBay, 1, l16
+
+Salinity_TrinityBay -> RedDrum_TrinityBay, 1, l17
+Salinity_GalvestonBay -> RedDrum_GalvestonBay, 1, l18
+Salinity_WestBay -> RedDrum_WestBay, 1, l19
+Salinity_EastBay -> RedDrum_EastBay, 1, l20
+
+Salinity_TrinityBay -> SpottedSeatrout_TrinityBay, 1, l21
+Salinity_GalvestonBay -> SpottedSeatrout_GalvestonBay, 1, l22
+Salinity_WestBay -> SpottedSeatrout_WestBay, 1, l23
+Salinity_EastBay -> SpottedSeatrout_EastBay, 1, l24
 "
 
 fit_semGB_Sciaenid_fullbottomup = dsem(sem = semGB_Sciaenid_fullbottomup,
@@ -2558,7 +2568,7 @@ write_xlsx(table_semGB_Pred, path = "table_semGB_Pred.xlsx")
 
 # The full top-down model is the winner for Aransas Bay for the Keystone Predator System
 # The full bottom-up model is the winner for Galveston Bay for the Keystone Predator System
-# The full bottom-up model is the winner for Galveston Bay for the sciaenid system
+# The full top-d0wn model is the winner for Galveston Bay for the sciaenid system
 # And the no-trophic relationship model is the winner for Aransas Bay for the sciaenid system 
 
 

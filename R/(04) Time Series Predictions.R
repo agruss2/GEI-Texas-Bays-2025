@@ -27,6 +27,37 @@ logLik(fit_semGB_Sciaenid_fullbottomup)
 logLik(fit_semGB_Pred_fullbottomup)
 logLik(fit_semAB_Pred_fulltopdown)
 
+# calculcate df for each of all  models
+logLik(fit_semAB_Sciaenid_notrophics)
+logLik(fit_semAB_Sciaenid_abiotic)
+logLik(fit_semAB_Sciaenid_bottomup_noDD)
+logLik(fit_semAB_Sciaenid_fullbottomup)
+logLik(fit_semAB_Sciaenid_topdown_noDD)
+logLik(fit_semAB_Sciaenid_fulltopdown)
+
+logLik(fit_semAB_Pred_notrophics)
+logLik(fit_semAB_Pred_abiotic)
+logLik(fit_semAB_Pred_bottomupnoDD)
+logLik(fit_semAB_Pred_fullbottomup)
+logLik(fit_semAB_Pred_topdown_noDD)
+logLik(fit_semAB_Pred_fulltopdown)
+
+logLik(fit_semGB_Sciaenid_notrophics)
+logLik(fit_semGB_Sciaenid_abiotic)
+logLik(fit_semGB_Sciaenid_bottomup_noDD)
+logLik(fit_semGB_Sciaenid_fullbottomup)
+logLik(fit_semGB_Sciaenid_topdown_noDD)
+logLik(fit_semGB_Sciaenid_fulltopdown)
+
+logLik(fit_semGB_Pred_notrophics)
+logLik(fit_semGB_Pred_abiotic)
+logLik(fit_semGB_Pred_bottomupnoDD)
+logLik(fit_semGB_Pred_fullbottomup)
+logLik(fit_semGB_Pred_topdown_noDD)
+logLik(fit_semGB_Pred_fulltopdown)
+
+
+
 # inspect residuals/dharma plots for each of four final models
 samples <- loo_residuals(fit_semAB_Sciaenid_notrophics,  what="samples", track_progress=FALSE)
 which_use = which(!is.na(AB_Sciaenid_TS))
@@ -38,9 +69,9 @@ res = DHARMa::createDHARMa(
   fittedPredictedResponse = fitResp )
 plot(res)
 
-samples <- loo_residuals(fit_semGB_Sciaenid_fullbottomup,  what="samples", track_progress=FALSE)
+samples <- loo_residuals(fit_semGB_Sciaenid_fulltopdown,  what="samples", track_progress=FALSE)
 which_use = which(!is.na(GB_Sciaenid_TS))
-fitResp = loo_residuals(fit_semGB_Sciaenid_fullbottomup, what="loo", track_progress=FALSE)[,'est']
+fitResp = loo_residuals(fit_semGB_Sciaenid_fulltopdown, what="loo", track_progress=FALSE)[,'est']
 simResp = apply(samples, MARGIN=3, FUN=as.vector)[which_use,]
 res = DHARMa::createDHARMa(
   simulatedResponse = simResp,
@@ -201,7 +232,7 @@ print(results_semGB_Pred)
 
 results <- cross_validation_ts(
   tsdata = GB_Sciaenid_TS,
-  sem = semGB_Sciaenid_fullbottomup,
+  sem = semGB_Sciaenid_fulltopdown,
   fit_function = dsem,
   loo_function = loo_residuals,
   chunk_size = 4, 
@@ -346,6 +377,13 @@ write.xlsx(loodf_AB_Pred, file.path(desktop_path, "loodf_AB_Pred.xlsx"))
 write.xlsx(results_semAB_Pred, file.path(desktop_path, "results_semAB_Pred.xlsx"))
 write.xlsx(loodf_AB_Sciaenid, file.path(desktop_path, "loodf_AB_Sciaenid.xlsx"))
 write.xlsx(results_semAB_Sciaenid, file.path(desktop_path, "results_semAB_Sciaenid.xlsx"))
+
+# bringing in exported files 
+folder_path <- "~/Desktop/2025 DSEM/May/LOO Data Files"
+excel_files <- list.files(path = folder_path, pattern = "\\.xlsx?$", full.names = TRUE)
+data_list <- lapply(excel_files, read_excel)
+names(data_list) <- tools::file_path_sans_ext(basename(excel_files))
+list2env(data_list, envir = .GlobalEnv)
 
 
 ########## Time Series Plots
