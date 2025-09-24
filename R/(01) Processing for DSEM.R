@@ -578,7 +578,7 @@ GBMAP<-ggplot() +
   coord_sf(xlim = c(-95.4, -94.5),
            ylim = c(29.0, 29.8)) +
   geom_point(data = GalvestonBay_GN_cpue_map, aes(x = X, y = Y, color = Bay_Area), size = 1.5) +
-  labs(x = "Longitude", y = "Latitude", title = "Galveston Bay Estuary", color = "Bay Area") +
+  labs(x = "Longitude", y = "Latitude", title = "Galveston Bay System", color = "Minor Bay Area") +
   theme_bw()+
   scale_color_manual(values = bay_colors_GB) +
   theme(
@@ -622,7 +622,7 @@ ABMAP<-ggplot() +
   coord_sf(xlim = c(-97.3, -96.7),
            ylim = c(27.8, 28.3)) +
   geom_point(data = AransasBay_GN_cpue_map, aes(x = X, y = Y, color = Bay_Area), size = 1.5) +
-  labs(x = "Longitude", y = "Latitude", title = "Mission Aransas Estuary", color = "Bay Area") +
+  labs(x = "Longitude", y = "Latitude", title = "Mission Aransas System", color = "Minor Bay Area") +
   theme_bw()+
   scale_color_manual(values = bay_colors_AB) +
   theme(
@@ -838,8 +838,8 @@ PDSIPLOT<-ggplot(AbioticMeans_long, aes(x = YEAR, y = PDSI, color = Bay, group =
       "AransasBay" = "#2a9d8f",
       "GalvestonBay" = "#f28482"),
     labels = c(
-      "AransasBay" = "Mission Aransas Estuary",
-      "GalvestonBay" = "Galveston Bay Estuary"))+
+      "AransasBay" = "Mission Aransas System",
+      "GalvestonBay" = "Galveston Bay System"))+
   labs(
     x = "Year",
     y = "PDSI",

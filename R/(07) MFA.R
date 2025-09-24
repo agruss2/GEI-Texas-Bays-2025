@@ -45,8 +45,8 @@ loodf_PDSI_forPCA <- loodf_PDSI_forPCA %>%
   )
 
 loodf_PDSI_forPCA <- loodf_PDSI_forPCA %>%
-  mutate(MajorBay = ifelse(MajorBay == "AransasBay", "Mission Aransas Estuary", MajorBay)) %>%
-  mutate(MajorBay = ifelse(MajorBay == "GalvestonBay", "Galveston Bay Estuary", MajorBay))
+  mutate(MajorBay = ifelse(MajorBay == "AransasBay", "Mission Aransas", MajorBay)) %>%
+  mutate(MajorBay = ifelse(MajorBay == "GalvestonBay", "Galveston Bay", MajorBay))
   
 res.mfa <- MFA(loodf_PDSI_forPCA,
                group = c(1, 1, 1, 1),  
@@ -78,8 +78,8 @@ weatherbiplot<-fviz_mfa_ind(res.mfa,
   )
 
 my_colors_bay <- c(
-  "Mission Aransas Estuary" =  "#2a9d8f",
-  "Galveston Bay Estuary" = "#f28482")
+  "Mission Aransas" =  "#2a9d8f",
+  "Galveston Bay" = "#f28482")
 
 majorbaybiplot<-fviz_mfa_ind(res.mfa,
              habillage = "MajorBay",  
